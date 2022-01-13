@@ -1,8 +1,12 @@
 <<<<<<< Updated upstream
 starttesthallostarttesthallostarttesthallostarttesthallostarttesthallo
 TEST TEST ÄNDERUNG
+<<<<<<< HEAD
 TEST TEST ÄNDERUNG
 =======######
 1starttesthallostarttesthallostarttesthallostarttesthallostarttesthallo 123 Dominik 
 12S
 >>>>>>> Stashed changes
+=======
+Test Phil
+>>>>>>> 43fb061f7f78ef30c34a01774d1f6389e784c68b
