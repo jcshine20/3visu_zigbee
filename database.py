@@ -6,28 +6,32 @@ conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
 
 
-f = {
-    "achse_x": [x for x in range(100)],
-    "achse_y": [x for x in range(100)],
-    "achse_z": [x for x in range(100)],
-    "gyro_x": [x for x in range(100)],
-    "gyro_y": [x for x in range(100)],
-    "gyro_z": [x for x in range(100)],
-    "mag_x": [x for x in range(100)],
-    "mag_y": [x for x in range(100)],
-    "mag_z": [x for x in range(100)],
-}
 
-
-# for n in range(100):
-#    simulated_values.append(
-#        (random.randint(1, 10), random.randint(11, 20), random.randint(21, 30))
-#    )
+datadict = {"achse_x": [],
+            "achse_y": [],
+            "achse_z": [],
+            "gyro_x": [],
+            "gyro_y": [],
+            "gyro_z": [],
+            "mag_x": [],
+            "mag_y": [],
+            "mag_z": []
+            }
+for set in open('bewegung.txt', 'r'):
+    set.strip('\n')
+    setlist=set.split(",")
+    if 'accx' not in setlist and len(set) > 5:
+        datadict["achse_x"].append(setlist[0])
+        datadict["achse_y"].append(setlist[1])
+        datadict["achse_z"].append(setlist[2])
+        datadict["gyro_x"].append(setlist[3])
+        datadict["gyro_y"].append(setlist[4])
+        datadict["gyro_z"].append(setlist[5])
+        datadict["mag_x"].append(setlist[6])
+        datadict["mag_y"].append(setlist[7])
+        datadict["mag_z"].append(setlist[8])
 
 def insert_data(data: dict):
-    zzzz =[data["achse_x"][entry],
-            data["achse_y"][entry],
-            data["achse_z"][entry]]
     tuplelistachse = []
     for entry in range(len(data["achse_x"])):
         tuplelistachse.append((
@@ -50,36 +54,59 @@ def insert_data(data: dict):
             data["mag_z"][entry]
         ))
     namelist = {"achsen": tuplelistachse,
-               "gyroscop": tuplelistgyro,
-               "quaterionen": tuplelistmag}
+                "gyroscop": tuplelistgyro,
+                "quaterionen": tuplelistmag}
 
     for name, data in namelist.items():
-       cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
-       cursor.execute(f"SELECT rowid, * FROM {name} ")
+        #cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
+        cursor.execute(f"SELECT rowid, * FROM {name} ")
 
-    #print(cursor.fetchall())
+    # print(cursor.fetchall())
     entries = cursor.fetchall()
     print(entries)
     for entry in entries:
-       print(f" rowID: {entry[0]} xachse:{entry[1]}   yachse:{entry[2]}   zachse:{entry[3]}")
+        print(f" rowID: {entry[0]} xachse:{entry[1]}   yachse:{entry[2]}   zachse:{entry[3]}")
 
 
-insert_data(f)
+def get_pitch():
+    pitchdatalist=[]
+    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    pitchdatalist.append(temp[0][0])
+    pitchdatalist.append(temp[0][2])
+    cursor.execute("SELECT * FROM gyroscop ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    pitchdatalist.append(temp[0][1])
+    return pitchdatalist
+
+
+def get_roll():
+    rolldatalist=[]
+    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    rolldatalist.append(temp[0][1])
+    rolldatalist.append(temp[0][2])
+    cursor.execute("SELECT * FROM gyroscop ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    rolldatalist.append(temp[0][2])
+    return rolldatalist
+
+
+def get_yaw_data():
+    yawdatalist=[]
+    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    yawdatalist.append(temp[0][0])
+    yawdatalist.append(temp[0][1])
+    yawdatalist.append(temp[0][2])
+    return yawdatalist
+
+
+print(get_pitch())
+print(get_roll())
+print(get_yaw_data())
+
+
+#insert_data(datadict)
 conn.commit()
 conn.close()
-
-
-
-
-# cursor.executemany("INSERT INTO achsen VALUES (?, ?, ?)", simulated_values)
-
-# cursor.execute("SELECT rowid, * FROM achsen LIMIT 50")
-
-# cursor.execute("""UPDATE achsen SET x_achse = 999 WHERE y_achse = 22 """)
-# cursor.executemany("INSERT INTO achsen VALUES (?, ?, ?)", simulated_values)
-# cursor.execute("SELECT rowid, * FROM achsen")
-# entries = cursor.fetchall()
-# for entry in entries:
-#    print(f" rowID: {entry[0]} xachse:{entry[1]}   yachse:{entry[2]}   zachse:{entry[3]}")
-#
-
