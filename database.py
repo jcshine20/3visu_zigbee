@@ -5,8 +5,6 @@ conn = sqlite3.connect('data.db')
 
 cursor = conn.cursor()
 
-
-
 datadict = {"achse_x": [],
             "achse_y": [],
             "achse_z": [],
@@ -17,9 +15,10 @@ datadict = {"achse_x": [],
             "mag_y": [],
             "mag_z": []
             }
+
 for set in open('bewegung.txt', 'r'):
     set.strip('\n')
-    setlist=set.split(",")
+    setlist = set.split(",")
     if 'accx' not in setlist and len(set) > 5:
         datadict["achse_x"].append(setlist[0])
         datadict["achse_y"].append(setlist[1])
@@ -30,6 +29,7 @@ for set in open('bewegung.txt', 'r'):
         datadict["mag_x"].append(setlist[6])
         datadict["mag_y"].append(setlist[7])
         datadict["mag_z"].append(setlist[8])
+
 
 def insert_data(data: dict):
     tuplelistachse = []
@@ -58,7 +58,7 @@ def insert_data(data: dict):
                 "quaterionen": tuplelistmag}
 
     for name, data in namelist.items():
-        #cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
+        # cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
         cursor.execute(f"SELECT rowid, * FROM {name} ")
 
     # print(cursor.fetchall())
@@ -69,7 +69,7 @@ def insert_data(data: dict):
 
 
 def get_pitch():
-    pitchdatalist=[]
+    pitchdatalist = []
     cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
     temp = cursor.fetchall()
     pitchdatalist.append(temp[0][0])
@@ -81,7 +81,7 @@ def get_pitch():
 
 
 def get_roll():
-    rolldatalist=[]
+    rolldatalist = []
     cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
     temp = cursor.fetchall()
     rolldatalist.append(temp[0][1])
@@ -93,7 +93,7 @@ def get_roll():
 
 
 def get_yaw_data():
-    yawdatalist=[]
+    yawdatalist = []
     cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
     temp = cursor.fetchall()
     yawdatalist.append(temp[0][0])
@@ -106,7 +106,6 @@ print(get_pitch())
 print(get_roll())
 print(get_yaw_data())
 
-
-#insert_data(datadict)
+# insert_data(datadict)
 conn.commit()
 conn.close()
