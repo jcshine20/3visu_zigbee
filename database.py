@@ -32,7 +32,7 @@ for set in open('bewegung.txt', 'r'):
 
 
 def insert_data(data: dict):
-    tuplelistachse = []
+    # tuplelistachse = [(data["achse_x"], data["achse_y"], data["achse_z"]) for entry in data["achse_x"]]
     for entry in range(len(data["achse_x"])):
         tuplelistachse.append((
             data["achse_x"][entry],
@@ -58,12 +58,12 @@ def insert_data(data: dict):
                 "quaterionen": tuplelistmag}
 
     for name, data in namelist.items():
-        # cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
+        cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
         cursor.execute(f"SELECT rowid, * FROM {name} ")
 
     # print(cursor.fetchall())
     entries = cursor.fetchall()
-    print(entries)
+    # print(entries)
     for entry in entries:
         print(f" rowID: {entry[0]} xachse:{entry[1]}   yachse:{entry[2]}   zachse:{entry[3]}")
 
@@ -102,10 +102,12 @@ def get_yaw_data():
     return yawdatalist
 
 
-print(get_pitch())
-print(get_roll())
-print(get_yaw_data())
-
 # insert_data(datadict)
+
+
+print("pitchdata", get_pitch())
+print("rolldata", get_roll())
+print("yawdata", get_yaw_data())
+
 conn.commit()
 conn.close()
