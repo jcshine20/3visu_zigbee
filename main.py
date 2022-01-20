@@ -33,8 +33,8 @@ lebend = True
 
 positions = [10, 0, -10, -20, -60, -100]
 
-#for i in range(len(positions)):
-    #asteroid = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6 ), random.randint(-6, 6), positions[0]))
+for i in range(len(positions)):
+    asteroid = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6 ), random.randint(-6, 6), positions[0]))
 
 
 asteroid0 = Entity(model='Asteroid1', collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[0]))
@@ -94,13 +94,13 @@ def update():
 
 
     #Asteroiden
-    #for i in range(len(positions)):
+    for i in range(len(positions)):
 
-        #asteroid.z -= wert * time.dt
-        #asteroid.rotation_x -= 5
-        #endpos = 25
-        #if asteroid.z <= -2:
-            #asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), endpos)
+        asteroid.z -= wert * time.dt
+        asteroid.rotation_x -= 5
+        endpos = 25
+        if asteroid.z <= -2:
+            asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), endpos)
     asteroid0.z -= wert * time.dt
     asteroid0.rotation_x -= 5
     endpos = 25
