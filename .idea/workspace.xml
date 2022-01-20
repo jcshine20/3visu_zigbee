@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d3763108-47b0-4d24-9743-bf44395c0b1d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/visualization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ComputationEulerAngles.py" beforeDir="false" afterPath="$PROJECT_DIR$/ComputationEulerAngles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/visualization.py" beforeDir="false" afterPath="$PROJECT_DIR$/visualization.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,6 +84,9 @@
       <list>
         <item itemvalue="Python.visualization" />
         <item itemvalue="Python.ComputationEulerAngles" />
+        <item itemvalue="Python.visualization" />
+        <item itemvalue="Python.ComputationEulerAngles" />
+        <item itemvalue="Python.visualization" />
       </list>
     </recent_temporary>
   </component>
@@ -114,6 +116,11 @@
                       </list>
                     </value>
                   </entry>
+                </map>
+              </option>
+              <option name="COLUMN_ID_WIDTH">
+                <map>
+                  <entry key="Table.Default.Date.ColumnIdWidth" value="110" />
                 </map>
               </option>
             </State>

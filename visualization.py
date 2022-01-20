@@ -97,15 +97,21 @@ def main():
             sideVector = cross(frontVector, y)
             upVector = cross(sideVector, frontVector)
 
+            '''
+            Computation of y- and z-Axis because they are influenced by roll rotations
+            '''
+            upVectorRotated = upVector * cos(roll) + cross(frontVector, upVector) * sin(roll)
+            sideVectorRotated = cross(frontVector, upVectorRotated)
+
             frontArrow.axis = frontVector
             frontArrow.length = 2
-            sideArrow.axis = sideVector
+            sideArrow.axis = sideVectorRotated
             sideArrow.length = 2
-            upArrow.axis = upVector
+            upArrow.axis = upVectorRotated
             upArrow.length = 2
 
             allObj.axis = frontVector
-            allObj.up = upVector
+            allObj.up = upVectorRotated
 
 
 if __name__ == "__main__":
