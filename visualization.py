@@ -5,11 +5,22 @@ from ComputationEulerAngles import *
 toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
 
-scene.range = 5
-scene.forward = vector(-1, -1, -1)
-scene.width = 600
-scene.height = 600
+# scene.range = 5
+# scene.forward = vector(-1, -1, -1)
+# scene.width = 600
+# scene.height = 600
+# scene.title = "<b>3D Visualization Euler Angles</b>"
 
+def createCanvas():
+    return canvas(range = 5, forward = vector(-1,-1,-1), width = 600, height = 600)
+
+def createEulerGraph():
+    gd = graph(title="3D Visualization", xtitle="<b>Time in s</b>", ytitle="Angels in Degrees",
+               foreground=color.black, background=color.white, fast=False)
+    pitchCurve = gdots(color=color.red, label="pitch")
+    rollCurve = gdots(color=color.green, label="roll")
+    yawCurve = gdots(color=color.blue, label="yaw")
+    return gd, pitchCurve, rollCurve, yawCurve
 
 def axisVis():
     """
@@ -63,10 +74,34 @@ def sensorVis():
 
 
 def main():
-    xArrow, yArrow, zArrow, frontArrow, upArrow, sideArrow = axisVis()
-    allObj = sensorVis()
+    '''Build up Graph for Euler Angels'''
+    gd, pitchCurve, rollCurve, yawCurve = createEulerGraph()
+    gd.align = "right"
+
+    '''Build up Scene for Euler Angels'''
+    scene = createCanvas()
+    scene.title = "<b>3D Visualization Euler Angles</b>"
+    # scene.align = "left"
+    scene.append_to_caption('\n\n')
+    xArrowEuler, yArrowEuler, zArrowEuler, frontArrowEuler, upArrowEuler, sideArrowEuler = axisVis()
+    eulerObj = sensorVis()
+
+
+    '''Build up Scene for Quaternions'''
+    quaternionScene = createCanvas()
+    quaternionScene.title = "<b>3D Visualization Quaternions</b>"
+    quaternionScene.align = "left"
+    quaternionScene.select()
+    xArrowQuat, yArrowQuat, zArrowQuat, frontArrowQuat, upArrowQuat, sideArrowQuat = axisVis()
+    quaternionObj = sensorVis()
+
+
+    # gd, pitchCurve, rollCurve, yawCurve = createEulerGraph()
+
+
     theta = 0
     phi = 0
+    deltaTime = 0
 
     list = readDataFromTXT()
     for i in range(len(list)):
@@ -86,7 +121,14 @@ def main():
             yaw = computeYawAngle(theta=pitch, phi=roll, magx=row[6], magy=row[7], magz=row[8]) * toRad
             theta = pitch * toDeg
             phi = roll * toDeg
-            print(pitch * toDeg, roll * toDeg, yaw * toDeg)
+            # print(pitch * toDeg, roll * toDeg, yaw * toDeg)
+
+            '''
+            Update Graphics
+            '''
+            pitchCurve.plot(pos=(deltaTime, theta))
+            rollCurve.plot(pos=(deltaTime, phi))
+            yawCurve.plot(pos=(deltaTime, yaw * toDeg))
 
             rate(20)
             """
@@ -103,16 +145,17 @@ def main():
             upVectorRotated = upVector * cos(roll) + cross(frontVector, upVector) * sin(roll)
             sideVectorRotated = cross(frontVector, upVectorRotated)
 
-            frontArrow.axis = frontVector
-            frontArrow.length = 2
-            sideArrow.axis = sideVectorRotated
-            sideArrow.length = 2
-            upArrow.axis = upVectorRotated
-            upArrow.length = 2
+            frontArrowEuler.axis = frontVector
+            frontArrowEuler.length = 2
+            sideArrowEuler.axis = sideVectorRotated
+            sideArrowEuler.length = 2
+            upArrowEuler.axis = upVectorRotated
+            upArrowEuler.length = 2
 
-            allObj.axis = frontVector
-            allObj.up = upVectorRotated
+            eulerObj.axis = frontVector
+            eulerObj.up = upVectorRotated
 
+            deltaTime = deltaTime + 0.05
 
 if __name__ == "__main__":
     main()
