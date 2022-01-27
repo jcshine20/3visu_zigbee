@@ -117,7 +117,7 @@ def update():
 
 
     #Punktzahl
-    Punktzahl = Text("Punktzahl:",y=.5,x=.6 )
+    #Punktzahl = Text("Punktzahl:",y=.5,x=.6 )
 
     # Punktzahl
 
