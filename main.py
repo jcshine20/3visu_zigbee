@@ -23,7 +23,6 @@ window.fullscreen = False
 toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 
 Sky(texture='sky')
-
 # Spieler evtl collider sphere??
 player = Entity(model='Schiff', color=color.orange, scale=(.3, .3, .3), rotation=(0, 180, 0), collider="box")
 player.collider.visible = True
@@ -84,6 +83,7 @@ def update():
     while player.x <= -6:
         player.x += 1
 
+
     for asteroid in asteroids:
         asteroid.z -= wert * time.dt
         asteroid.rotation_x -= random.randint(3, 6)
@@ -109,6 +109,15 @@ def update():
         kollisionAs = asteroid.intersects()
         if kollisionAs.hit:
             asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(30, 40))
+        while lebend <= 0:
+            player.visible = False
+            explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
+            explosion.animate_scale(3,.3)
+            destroy(explosion, delay=.3)
+
+
+    #Punktzahl
+    Punktzahl = Text("Punktzahl:",y=.5,x=.6 )
 
     # Punktzahl
 
