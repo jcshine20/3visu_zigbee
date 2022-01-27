@@ -1,22 +1,20 @@
 import timeit
 
-from ursina import *                                                # import Ursina game engine
+from ursina import *  # import Ursina game engine
 
 
-
-
-
-class Asteroid(Entity):                                             #Klasse Asteroid
-    def __init__(self, position=(0,0,0)):
+class Asteroid(Entity):  # Klasse Asteroid
+    def __init__(self, position=(0, 0, 0)):
         super().__init__(
             position=position,
-            model='Asteroid', collider= 'Asteroid', scale=(1,1,1),
+            model='Asteroid', collider='Asteroid', scale=(1, 1, 1),
         )
 
-app=Ursina()                                                        #Initialisierung Ursina
 
-#Fenster Einstellungen
-window.title ='Space Game'
+app = Ursina()  # Initialisierung Ursina
+
+# Fenster Einstellungen
+window.title = 'Space Game'
 window.borderless = True
 window.exit_button.visible = True
 window.fps_counter.enabled = True
@@ -25,24 +23,29 @@ toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 
 Sky(texture='sky')
 
-#Spieler evtl collider sphere??
-player = Entity(model='sphere', color=color.black, scale=(1,1,1), rotation=(0,180,0), collider='box')
+# Spieler evtl collider sphere??
+player = Entity(model='sphere', color=color.black, scale=(1, 1, 1), rotation=(0, 180, 0), collider='box')
 player.collider.visible = True
 lebend = True
-
 
 positions = [10, 0, -10, -20, -60, -100]
 
 for i in range(len(positions)):
-    asteroid = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6 ), random.randint(-6, 6), positions[0]))
+    asteroid = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                      position=(random.randint(-6, 6), random.randint(-6, 6), positions[0]))
 
-
-asteroid0 = Entity(model='Asteroid1', collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[0]))
-asteroid1 = Entity(model='Asteroid', color=color.gray, collider="sphere", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[1]))
-asteroid2 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[2]))
-asteroid3 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[3]))
-asteroid4 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[4]))
-asteroid5 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0), position=(random.randint(-6, 6), random.randint(-6, 6), positions[5]))
+asteroid0 = Entity(model='Asteroid', collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                   position=(random.randint(-6, 6), random.randint(-6, 6), positions[0]))
+asteroid1 = Entity(model='Asteroid', color=color.gray, collider="sphere", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                   position=(random.randint(-6, 6), random.randint(-6, 6), positions[1]))
+asteroid2 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                   position=(random.randint(-6, 6), random.randint(-6, 6), positions[2]))
+asteroid3 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                   position=(random.randint(-6, 6), random.randint(-6, 6), positions[3]))
+asteroid4 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                   position=(random.randint(-6, 6), random.randint(-6, 6), positions[4]))
+asteroid5 = Entity(model='Asteroid', color=color.gray, collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                   position=(random.randint(-6, 6), random.randint(-6, 6), positions[5]))
 
 asteroid0.collider.visible = True
 asteroid1.collider.visible = True
@@ -51,20 +54,22 @@ asteroid3.collider.visible = True
 asteroid4.collider.visible = True
 asteroid5.collider.visible = True
 
-def input (key):
+
+def input(key):
     if held_keys['space']:
         print(player.rotation_x)
     if held_keys['1']:
         quit()
     if held_keys['2']:
         player.visible = True
-        player.setPos(0,0,0)
+        player.setPos(0, 0, 0)
         player.collider.setScale(1)
         global lebend
         lebend = True
 
+
 def update():
-    #steuerung Spieler
+    # steuerung Spieler
     wertSteuer = 4
     wert = 10
     max = 15
@@ -92,8 +97,7 @@ def update():
     while player.x <= -6:
         player.x += 1
 
-
-    #Asteroiden
+    # Asteroiden
     for i in range(len(positions)):
 
         asteroid.z -= wert * time.dt
@@ -101,6 +105,9 @@ def update():
         endpos = 25
         if asteroid.z <= -2:
             asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), endpos)
+
+
+
     asteroid0.z -= wert * time.dt
     asteroid0.rotation_x -= 5
     endpos = 25
@@ -111,7 +118,7 @@ def update():
     asteroid1.rotation_y -= 4
     endpos = 25
     if asteroid1.z <= -2:
-        asteroid1.setPos(random.randint(-6,6), random.randint(-6,6), endpos)
+        asteroid1.setPos(random.randint(-6, 6), random.randint(-6, 6), endpos)
     asteroid2.z -= wert * time.dt
     asteroid2.rotation_x -= 5
     asteroid2.rotation_y -= 1
@@ -137,7 +144,7 @@ def update():
     if asteroid5.z <= -2:
         asteroid5.setPos(random.randint(-6, 6), random.randint(-6, 6), endpos)
 
-    #kollision
+    # kollision
     kollision = player.intersects()
     if kollision.hit:
         global lebend
@@ -146,16 +153,12 @@ def update():
             player.visible = False
             player.collider.setScale(0)
             explosion = Entity(model='sphere', color=color.red, scale=1, position=kollision.world_point)
-            explosion.animate_scale(3,.3)
+            explosion.animate_scale(3, .3)
             destroy(explosion, delay=.3)
             lebend = False
 
-
-    #Punktzahl
-    #punktzahl
-
+    # Punktzahl
+    # punktzahl
 
 
 app.run()
-
-
