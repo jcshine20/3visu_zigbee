@@ -7,15 +7,17 @@ toDeg = 1 / toRad
 
 
 def createCanvas():
-    return canvas(range = 5, forward = vector(-1,-1,-1), width = 600, height = 600)
+    return canvas(range=5, forward=vector(-1, -1, -1), width=600, height=600)
+
 
 def createEulerGraph():
     gd = graph(title="3D Visualization", xtitle="<b>Time in s</b>", ytitle="Angels in Degrees",
-               foreground=color.black, background=color.white, fast=False, scroll = True, xmin=0, xmax=5)
+               foreground=color.black, background=color.white, fast=False, scroll=True, xmin=0, xmax=5)
     pitchCurve = gdots(color=color.red, label="pitch")
     rollCurve = gdots(color=color.green, label="roll")
     yawCurve = gdots(color=color.blue, label="yaw")
     return gd, pitchCurve, rollCurve, yawCurve
+
 
 def axisVis():
     """
@@ -109,6 +111,7 @@ def visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
     quaternionObj.axis = frontVector
     quaternionObj.up = upVectorRotated
 
+
 def visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj, deltaTime, phi, theta):
     """
     Computation of Euler Angles with help of sensor data
@@ -170,6 +173,7 @@ def computeAxis(pitch, roll, yaw):
 
     return frontVector, upVectorRotated, sideVectorRotated
 
+
 def main():
     # '''Build up Graph for Euler Angels'''
     # gd, pitchCurve, rollCurve, yawCurve = createEulerGraph()
@@ -183,7 +187,6 @@ def main():
     xArrowEuler, yArrowEuler, zArrowEuler, frontArrowEuler, upArrowEuler, sideArrowEuler = axisVis()
     eulerObj = sensorVis()
 
-
     '''Build up Scene for Quaternions'''
     quaternionScene = createCanvas()
     quaternionScene.title = "<b>3D Visualization Quaternions</b>"
@@ -191,8 +194,6 @@ def main():
     quaternionScene.select()
     xArrowQuat, yArrowQuat, zArrowQuat, frontArrowQuat, upArrowQuat, sideArrowQuat = axisVis()
     quaternionObj = sensorVis()
-
-
 
     theta = 0
     phi = 0
