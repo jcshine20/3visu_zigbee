@@ -44,6 +44,21 @@ points_text = Text(text=f"Punktzahl: {Punktzahl}", y=.5, x=.6, eternal=True, ign
 highscore_text = Text(text=f"Highscore: {highscore}", y=.47, x=.6, eternal=True, ignore=False, i=0)
 
 
+# 1 und 2
+def input(key):
+    if held_keys['space']:
+        print(player.rotation_x)
+    if held_keys['1']:
+        quit()
+    if held_keys['2']:
+        global lebend
+        global Punktzahl
+        lebend = 2
+        Punktzahl = 0
+        player.visible = True
+        player.setPos(0, 0, 0)
+        player.collider.setScale(1)
+
 
 def update():
     # steuerung Spieler
