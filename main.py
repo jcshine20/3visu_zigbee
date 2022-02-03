@@ -82,8 +82,8 @@ def update():
     #
     #
     #
-    # player.rotation_x = 0
-    # player.rotation_z = 0
+    player.rotation_x = 0
+    player.rotation_z = 0
 
 
     if held_keys['w']:
