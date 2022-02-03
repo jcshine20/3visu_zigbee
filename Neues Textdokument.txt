@@ -1,0 +1,135 @@
+import random
+import timeit
+
+from ursina import *  # import Ursina game engine
+
+
+class Asteroid(Entity):  # Klasse Asteroid
+    def __init__(self, position=(0, 0, 0)):
+        super().__init__(
+            position=position,
+            model='Asteroid', collider='Asteroid', scale=(1, 1, 1),
+        )
+
+
+class InstantNumbers(Button):
+    def __init__(self, value):
+        super().__init__(
+            position=(0, 0),
+            origin=(0, 0),
+            scale=(Text.size * 20, Text.size),
+            color=color.black,
+            text="test"
+        )
+        self.text_entity.scale *= 5
+        self.value = value
+        self.text_entity.text = f"Number {self.value}"
+
+
+app = Ursina()  # Initialisierung Ursina
+
+# Fenster Einstellungen
+window.title = 'Space Game'
+window.borderless = True
+window.exit_button.visible = True
+window.fps_counter.enabled = True
+window.fullscreen = False
+toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
+
+Sky(texture='sky')
+# Spieler evtl collider sphere??
+player = Entity(model='Schiff', color=color.orange, scale=(.3, .3, .3), rotation=(0, 180, 0), collider="box")
+player.collider.visible = True
+
+positions = [15, 0, -10, -200, -60, -100]
+asteroids = []
+lebend = 3
+Punktzahl = 0
+value = 50
+#score = InstantNumbers(value)
+for i in range(len(positions)):
+    asteroid = Entity(model='Asteroid', color=color.gray,
+                      collider="sphere", scale=(.5, .5, .5), rotation=(0, 0, 0),
+                      position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
+    asteroids.append(asteroid)
+    asteroid.collider.visible = True
+
+
+# 1 und 2
+def input(key):
+    if held_keys['space']:
+        print(player.rotation_x)
+    if held_keys['1']:
+        quit()
+    if held_keys['2']:
+        lebend = 2
+        player.visible = True
+        player.setPos(0, 0, 0)
+        player.collider.setScale(1)
+
+
+def update():
+    # steuerung Spieler
+    global lebend
+    global Punktzahl
+    wertSteuer = 4
+    wert = 10
+    max = 15
+    player.rotation_x = 0
+    player.rotation_z = 0
+
+    if held_keys['w']:
+        player.y += wertSteuer * time.dt
+        player.rotation_x = max
+    if held_keys['s']:
+        player.y += -wertSteuer * time.dt
+        player.rotation_x = -max
+    if held_keys['d']:
+        player.x += wertSteuer * time.dt
+        player.rotation_z = -max
+    if held_keys['a']:
+        player.x += -wertSteuer * time.dt
+        player.rotation_z = max
+    while player.y >= 5:
+        player.y -= 1
+    while player.y <= -5:
+        player.y += 1
+    while player.x >= 6:
+        player.x -= 1
+    while player.x <= -6:
+        player.x += 1
+
+
+    for asteroid in asteroids:
+        asteroid.z -= wert * time.dt
+        asteroid.rotation_x -= random.randint(3, 6)
+        asteroid.rotation_y -= random.randint(2, 8)
+        if asteroid.z <= -2:
+            asteroid.setPos(x=random.randint(-6, 6), y=random.randint(-5, 5), z=random.randint(30, 40))
+            Punktzahl += 1
+
+    # kollision Spieler
+
+    kollisionSp = player.intersects()
+    if kollisionSp.hit and lebend > 0:
+        lebend -= 1
+        print("kollision", kollisionSp.world_point)
+        print(lebend)
+        if lebend <= 0:
+            player.visible = False
+            explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
+            explosion.animate_scale(3, .3)
+            destroy(explosion, delay=.3)
+
+    for asteroid in asteroids:
+        kollisionAs = asteroid.intersects()
+        if kollisionAs.hit and lebend > 0:
+            asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(30, 40))
+        if lebend <= 0:
+            player.visible = False
+            explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
+            explosion.animate_scale(3,.3)
+            destroy(explosion, delay=.3)
+
+
+app.run()
