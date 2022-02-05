@@ -4,6 +4,7 @@ import timeit
 from ursina import *  # import Ursina game engine
 from ursina.shaders import lit_with_shadows_shader
 
+
 class Asteroid(Entity):  # Klasse Asteroid
     def __init__(self, position=(0, 0, 0)):
         super().__init__(
@@ -11,11 +12,51 @@ class Asteroid(Entity):  # Klasse Asteroid
             model='Asteroid', collider='Asteroid', scale=(1, 1, 1),
         )
 
+# Class for Explosion
 class Explosion(Entity):
-    def __init__(self):
-        super.__init__(
+    def __init__(self, x, y, z):
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.z = z
+        self.dx = random.randint(-2, 2) / 50    # speed of how x coordinate changes
+        self.dy = random.randint(-2, 2) / 50    # speed of how y coordinate changes
+        self.dz = random.randint(-2, 2) / 50    # speed of how z coordinate changes
+        self.rx = random.randint(-5, 5)         # speed of x rotation
+        self.ry = random.randint(-5, 5)         # speed of y rotation
+        self.rz = random.randint(-5, 5)         # speed of z rotation
+        self.ds = random.randint(1, 3) / 150    # speed of how scale changes
 
-        )
+        j = random.randint(0,9)
+        if (j % 3) == 0:                        # 40% mini-asteroids, 60% red spheres
+            self.color = color.gray
+            self.model = 'Asteroid'
+            self.scale = 0.2
+        else:
+            self.color = color.red
+            self.model = 'sphere'
+            self.scale = 0.4
+
+    def update(self):
+        self.x += self.dx
+        self.y += self.dy
+        self.z += self.dz
+        self.rotation_x += self.rx
+        self.rotation_y += self.ry
+        self.rotation_z += self.rz
+        self.scale -= self.ds
+        if self.scale <= 0.005:
+            destroy(self)
+
+
+def createExplosion(vec):
+    num = 9
+    x = vec.x
+    y = vec.y
+    z = vec.z
+    e = [None] * num
+    for count in range(num):
+        e[count] = Explosion(x, y, z)
 
 
 app = Ursina()  # Initialisierung Ursina
@@ -35,9 +76,9 @@ player = Entity(model='Schiff', color=color.dark_gray, scale=(.2, .2, .2), rotat
 player.collider.visible = False
 
 positions = [15, 0, -10, -200, -60, -100]
-positionsH = [4,5,6]
+positionsH = [4, 5, 6]
 asteroids = []
-herzen  =[]
+herzen = []
 lebend = 2
 Punktzahl = 0
 highscore = 0
@@ -49,10 +90,12 @@ for i in range(len(positions)):
     asteroids.append(asteroid)
     asteroid.collider.visible = False
 
-'''Fonts, Points, Health Bar, HighScore'''
+'''Points, Health Bar, HighScore'''
 gamefont = 'fonts/Pixeboy-z8XGD.ttf'
-points_text = Text(text=f"Punktzahl: {Punktzahl}", y=.5, x=.6, scale = 1.5, eternal=True, ignore=False, i=0, font = gamefont)
-highscore_text = Text(text=f"Highscore: {highscore}", y=.47, x=.6, scale = 1.5, eternal=True, ignore=False, i=0, font = gamefont)
+points_text = Text(text=f"Punktzahl: {Punktzahl}", y=.5, x=.6, scale=1.5, eternal=True, ignore=False, i=0,
+                   font=gamefont)
+highscore_text = Text(text=f"Highscore: {highscore}", y=.47, x=.6, scale=1.5, eternal=True, ignore=False, i=0,
+                      font=gamefont)
 
 '''Leben'''
 for i in range(len(positionsH)):
@@ -75,6 +118,11 @@ def input(key):
         player.visible = True
         player.setPos(0, 0, 0)
         player.collider.setScale(1)
+        for i in range(len(positionsH)):
+            herzen[i].visible = True
+        # herzen[0].visible = True
+        # herzen[1].visible = True
+        # herzen[2].visible = True
 
 
 def update():
@@ -117,7 +165,6 @@ def update():
     player.rotation_x = 0
     player.rotation_z = 0
 
-
     if held_keys['w']:
         player.y += wertSteuer * time.dt
         player.rotation_x = max
@@ -159,9 +206,10 @@ def update():
         print(lebend)
         if lebend <= 0:
             player.visible = False
-            explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
-            explosion.animate_scale(3, .3)
-            destroy(explosion, delay=.3)
+            # explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
+            # explosion.animate_scale(3, .3)
+            # destroy(explosion, delay=.3)
+            createExplosion(kollisionSp.world_point)
             if highscore < Punktzahl:
                 highscore = Punktzahl
 
@@ -191,5 +239,3 @@ def update():
 
 
 app.run()
-
-
