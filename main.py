@@ -44,8 +44,9 @@ for i in range(len(positions)):
     asteroid.collider.visible = False
 
 '''Points, Health Bar, HighScore'''
-points_text = Text(text=f"Punktzahl: {Punktzahl}", y=.5, x=.6, eternal=True, ignore=False, i=0)
-highscore_text = Text(text=f"Highscore: {highscore}", y=.47, x=.6, eternal=True, ignore=False, i=0)
+gamefont = 'fonts/Pixeboy-z8XGD.ttf'
+points_text = Text(text=f"Punktzahl: {Punktzahl}", y=.5, x=.6, scale = 1.5, eternal=True, ignore=False, i=0, font = gamefont)
+highscore_text = Text(text=f"Highscore: {highscore}", y=.47, x=.6, scale = 1.5, eternal=True, ignore=False, i=0, font = gamefont)
 
 '''Leben'''
 for i in range(len(positionsH)):
