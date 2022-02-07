@@ -4,7 +4,6 @@
     <list default="true" id="e0255673-efc4-4693-b627-1aa91e1d5f96" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/visualization.py" beforeDir="false" afterPath="$PROJECT_DIR$/visualization.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +33,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python.home_gui (1)">
+  <component name="RunManager" selected="Python.main">
     <configuration name="home_gui (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="3visu_zigbee" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -121,8 +120,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.home_gui (1)" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.home_gui (1)" />
         <item itemvalue="Python.visualization" />
         <item itemvalue="Python.home_gui" />
       </list>
@@ -172,7 +171,14 @@
       <option name="project" value="LOCAL" />
       <updated>1644246434110</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="add sensor control to game">
+      <created>1644252867007</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1644252867007</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -204,6 +210,7 @@
     <MESSAGE value="add reading in of serial data" />
     <MESSAGE value="fix roll" />
     <MESSAGE value="fix yaw movement" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix yaw movement" />
+    <MESSAGE value="add sensor control to game" />
+    <option name="LAST_COMMIT_MESSAGE" value="add sensor control to game" />
   </component>
 </project>

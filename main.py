@@ -11,8 +11,14 @@ class Asteroid(Entity):  # Klasse Asteroid
     def __init__(self, position=(0, 0, 0)):
         super().__init__(
             position=position,
-            model='Asteroid', collider='Asteroid', scale=(1, 1, 1),
+            model='Asteroid',
+            collider="box",
+            color=color.gray,
+            scale=(.5, .5, .5),
+            rotation=(0, 0, 0),
+            shader=lit_with_shadows_shader
         )
+
 
 # Class for Explosion
 class Explosion(Entity):
@@ -21,16 +27,16 @@ class Explosion(Entity):
         self.x = x
         self.y = y
         self.z = z
-        self.dx = random.randint(-2, 2) / 50    # speed of how x coordinate changes
-        self.dy = random.randint(-2, 2) / 50    # speed of how y coordinate changes
-        self.dz = random.randint(-2, 2) / 50    # speed of how z coordinate changes
-        self.rx = random.randint(-5, 5)         # speed of x rotation
-        self.ry = random.randint(-5, 5)         # speed of y rotation
-        self.rz = random.randint(-5, 5)         # speed of z rotation
-        self.ds = random.randint(1, 3) / 150    # speed of how scale changes
+        self.dx = random.randint(-2, 2) / 50  # speed of how x coordinate changes
+        self.dy = random.randint(-2, 2) / 50  # speed of how y coordinate changes
+        self.dz = random.randint(-2, 2) / 50  # speed of how z coordinate changes
+        self.rx = random.randint(-5, 5)  # speed of x rotation
+        self.ry = random.randint(-5, 5)  # speed of y rotation
+        self.rz = random.randint(-5, 5)  # speed of z rotation
+        self.ds = random.randint(1, 3) / 150  # speed of how scale changes
 
-        j = random.randint(0,9)
-        if (j % 3) == 0:                        # 40% mini-asteroids, 60% red spheres
+        j = random.randint(0, 9)
+        if (j % 3) == 0:  # 40% mini-asteroids, 60% red spheres
             self.color = color.gray
             self.model = 'Asteroid'
             self.scale = 0.2
@@ -88,10 +94,11 @@ lebend = 2
 Punktzahl = 0
 highscore = 0
 for i in range(len(positions)):
-    asteroid = Entity(model='Asteroid', color=color.gray,
-                      collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
-                      shader=lit_with_shadows_shader,
-                      position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
+    # asteroid = Entity(model='Asteroid', color=color.gray,
+    #                   collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
+    #                   shader=lit_with_shadows_shader,
+    #                   position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
+    asteroid = Asteroid(position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
     asteroids.append(asteroid)
     asteroid.collider.visible = False
 
@@ -190,7 +197,7 @@ def update():
     if roll >= 20:
         player.x += -wertSteuer * time.dt
         player.rotation_z = roll
-    if roll <=-20:
+    if roll <= -20:
         player.x += wertSteuer * time.dt
         player.rotation_z = roll
     if pitch >= 20:
@@ -235,16 +242,12 @@ def update():
     # kollision Spieler
 
     kollisionSp = player.intersects()
-    # temp = kollisionSp.entity
-    if kollisionSp.hit:
+    if isinstance(kollisionSp.entity, Asteroid):
         lebend -= 1
         print("kollision", kollisionSp.world_point)
         print(lebend)
         if lebend <= 0:
             player.visible = False
-            # explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
-            # explosion.animate_scale(3, .3)
-            # destroy(explosion, delay=.3)
             createExplosion(kollisionSp.world_point)
             if highscore < Punktzahl:
                 highscore = Punktzahl
