@@ -49,7 +49,7 @@ def computeYawAngle(theta, phi, magx, magy, magz):
     yMagnetometer = magy * math.cos(phiRad) + magz * math.sin(phiRad)
 
     yaw = math.atan2(xMagnetometer, yMagnetometer) * toDeg
-    return yaw
+    return -yaw
 
 
 def transformQuatEuler(q0, q1, q2, q3):
