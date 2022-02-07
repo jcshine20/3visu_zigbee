@@ -1,8 +1,10 @@
 import random
 import timeit
 
+import serial
 from ursina import *  # import Ursina game engine
 from ursina.shaders import lit_with_shadows_shader
+from computation import transformQuatEuler
 
 
 class Asteroid(Entity):  # Klasse Asteroid
@@ -58,6 +60,9 @@ def createExplosion(vec):
     for count in range(num):
         e[count] = Explosion(x, y, z)
 
+
+com = "com7"
+Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 app = Ursina()  # Initialisierung Ursina
 
@@ -162,8 +167,38 @@ def update():
     #
     #
     #
+
+    while (Data.inWaiting() == 0):
+        #sleep(0.001)
+        pass
+    dataPacket = Data.readline()
+    dataPacket = str(dataPacket, 'utf-8')
+    dataPacket = dataPacket.strip('\r\n')
+    splitPacket = dataPacket.split(",")
+    row = splitPacket
+
+    if int(splitPacket[0]) == 1:
+        q0 = float(row[1])
+        q1 = float(row[2])
+        q2 = float(row[3])
+        q3 = float(row[4])
+        roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+
     player.rotation_x = 0
     player.rotation_z = 0
+
+    if roll >= 20:
+        player.x += -wertSteuer * time.dt
+        player.rotation_z = roll
+    if roll <=-20:
+        player.x += wertSteuer * time.dt
+        player.rotation_z = roll
+    if pitch >= 20:
+        player.y += wertSteuer * time.dt
+        player.rotation_x = pitch
+    if pitch <= -20:
+        player.y += -wertSteuer * time.dt
+        player.rotation_x = pitch
 
     if held_keys['w']:
         player.y += wertSteuer * time.dt
@@ -200,6 +235,7 @@ def update():
     # kollision Spieler
 
     kollisionSp = player.intersects()
+    # temp = kollisionSp.entity
     if kollisionSp.hit:
         lebend -= 1
         print("kollision", kollisionSp.world_point)
