@@ -1,9 +1,16 @@
 from vpython import *
-from ComputationEulerAngles import *
+from computation import *
+
+import time
+import serial
+from datetime import datetime
 
 # GLOBAL VARIABLES
 toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
+
+com = "com7"
+Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 
 def createCanvas():
@@ -112,12 +119,12 @@ def visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
     quaternionObj.up = upVectorRotated
 
 
-def visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj, deltaTime, phi, theta):
+def visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj, phi, theta):
     """
     Computation of Euler Angles with help of sensor data
     """
-    roll = computeRollAngle(accy=row[1], accz=row[2], gyrox=row[3], phiOld=phi, dt=0.050) * toRad
-    pitch = computePitchAngle(accx=row[0], accz=row[2], gyroy=row[4], thetaOld=theta, dt=0.050) * toRad
+    roll = computeRollAngle(accy=row[1], accz=row[2], gyrox=row[3], phiOld=phi, dt=row[10]) * toRad
+    pitch = computePitchAngle(accx=row[0], accz=row[2], gyroy=row[4], thetaOld=theta, dt=row[10]) * toRad
     yaw = computeYawAngle(theta=pitch, phi=roll, magx=row[6], magy=row[7], magz=row[8]) * toRad
 
     phi = roll * toDeg
@@ -127,9 +134,9 @@ def visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj,
     '''
     Update Graphics
     '''
-    # curves[0].plot(pos=(deltaTime, roll * toDeg))
-    # curves[1].plot(pos=(deltaTime, pitch * toDeg))
-    # curves[2].plot(pos=(deltaTime, yaw * toDeg))
+    # curves[0].plot(pos=(row[10], roll * toDeg))
+    # curves[1].plot(pos=(row[10], pitch * toDeg))
+    # curves[2].plot(pos=(row[10], yaw * toDeg))
 
     frontVector, upVectorRotated, sideVectorRotated = computeAxis(pitch, roll, yaw)
 
@@ -143,9 +150,9 @@ def visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj,
     eulerObj.axis = frontVector
     eulerObj.up = upVectorRotated
 
-    deltaTime = deltaTime + 0.05
+    # deltaTime = deltaTime + 0.05
 
-    return phi, theta, deltaTime
+    return phi, theta
 
 
 def computeAxis(pitch, roll, yaw):
@@ -197,29 +204,41 @@ def main():
 
     theta = 0
     phi = 0
-    deltaTime = 0
+    oldTime = time.time()
+    # deltaTime = 0
 
-    list = readDataFromTXT()
-    for i in range(len(list)):
-        dataPacket = str(list[i])
-        dataPacket = dataPacket.strip('\n')
-        list[i] = dataPacket
-        # print(list[i])
+    # list = readDataFromTXT()
+    # for i in range(len(list)):
+    #     dataPacket = str(list[i])
+    #     dataPacket = dataPacket.strip('\n')
+    #     list[i] = dataPacket
+    #     # print(list[i])
 
     while True:
-        for i in range(len(list)):
-            rate(20)
-            row = list[i].split(",")
-            # print(row)
-            if True:
-                phi, theta, deltaTime = visualizeEuler(row, frontArrowEuler, upArrowEuler,
-                                                       sideArrowEuler, eulerObj, deltaTime, phi, theta)
-            else:
-                try:
-                    visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
-                                        quaternionObj)
-                except:
-                    pass
+        while (Data.inWaiting() == 0):
+            sleep(0.001)
+            pass
+        dataPacket = Data.readline()
+        dataPacket = str(dataPacket, 'utf-8')
+        dataPacket = dataPacket.strip('\r\n')
+        splitPacket = dataPacket.split(",")
+        newTime = time.time()
+        deltaTime = newTime - oldTime
+        oldTime = newTime
+        splitPacket.append(str(deltaTime))
+        row = splitPacket
+
+        print(row)
+        if int(splitPacket[0]) == 0:
+            phi, theta = visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj, phi, theta)
+            # deltaTime = newTime - oldTime
+            # oldTime = newTime
+        elif int(splitPacket[0]) == 1:
+            try:
+                visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
+                                    quaternionObj)
+            except:
+                pass
 
 
 if __name__ == "__main__":
