@@ -96,9 +96,10 @@ def visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
     q3 = float(row[4])
 
     # Transformation quaternions into euler angels
-    roll = -math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (q1 * q1 + q2 * q2))
-    pitch = math.asin(2 * (q0 * q2 - q3 * q1))
-    yaw = -math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (q2 * q2 + q3 * q3))  # - np.pi/2
+    # roll = -math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (q1 * q1 + q2 * q2))
+    # pitch = math.asin(2 * (q0 * q2 - q3 * q1))
+    # yaw = -math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (q2 * q2 + q3 * q3))  # - np.pi/2
+    roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
 
     # Update Graph
     # curves[0].plot((q0, row[5]))
@@ -123,9 +124,9 @@ def visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj,
     """
     Computation of Euler Angles with help of sensor data
     """
-    roll = computeRollAngle(accy=row[1], accz=row[2], gyrox=row[3], phiOld=phi, dt=row[10]) * toRad
-    pitch = computePitchAngle(accx=row[0], accz=row[2], gyroy=row[4], thetaOld=theta, dt=row[10]) * toRad
-    yaw = computeYawAngle(theta=pitch, phi=roll, magx=row[6], magy=row[7], magz=row[8]) * toRad
+    roll = computeRollAngle(accy=row[2], accz=row[3], gyrox=row[4], phiOld=phi, dt=float(row[11])) * toRad
+    pitch = computePitchAngle(accx=row[1], accz=row[3], gyroy=row[5], thetaOld=theta, dt=float(row[11])) * toRad
+    yaw = computeYawAngle(theta=pitch, phi=roll, magx=row[7], magy=row[8], magz=row[9]) * toRad
 
     phi = roll * toDeg
     theta = pitch * toDeg

@@ -2,11 +2,6 @@ import csv
 import math
 import numpy as np
 
-# TODO
-#  1. Zeitstempel
-#  2. gesendetes Datenformat vom ZigBee Modul
-#  3. Lesen der Daten und das entspechende Formatieren der Daten (in array, \n raus, ...)
-#  4. Grafik für Euler-Angle
 
 # global variables
 toRad = 2 * np.pi / 360
@@ -46,15 +41,23 @@ def computeYawAngle(theta, phi, magx, magy, magz):
     magx = float(magx)
     magy = float(magy)
     magz = float(magz)
-    phiRad = phi * toRad
-    thetaRad = theta * toRad
+    phiRad = phi
+    thetaRad = theta
 
     xMagnetometer = magx * math.cos(thetaRad) - magy * math.sin(phiRad) * math.sin(thetaRad) + magz * math.cos(
         phiRad) * math.sin(thetaRad)
     yMagnetometer = magy * math.cos(phiRad) + magz * math.sin(phiRad)
 
-    phi = math.atan2(xMagnetometer, yMagnetometer) * toDeg
-    return phi
+    yaw = math.atan2(xMagnetometer, yMagnetometer) * toDeg
+    return yaw
+
+
+def transformQuatEuler(q0, q1, q2, q3):
+    roll = -math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (q1 * q1 + q2 * q2))
+    pitch = math.asin(2 * (q0 * q2 - q3 * q1))
+    yaw = -math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (q2 * q2 + q3 * q3))  # - np.pi/2
+
+    return roll, pitch, yaw
 
 
 # Main
