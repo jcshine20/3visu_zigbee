@@ -241,24 +241,26 @@ def update():
     speed = speeds[f'{config["user"]["difficulty"]}']
     max = 15
 
+    try:
+        while (Data.inWaiting() == 0):
+            #sleep(0.001)
+            pass
+        dataPacket = Data.readline()
+        dataPacket = str(dataPacket, 'utf-8')
+        dataPacket = dataPacket.strip('\r\n')
+        splitPacket = dataPacket.split(",")
+        row = splitPacket
 
-    while (Data.inWaiting() == 0):
-        #sleep(0.001)
+        if int(splitPacket[0]) == 1:
+            q0 = float(row[1])
+            q1 = float(row[2])
+            q2 = float(row[3])
+            q3 = float(row[4])
+            roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+            roll = -(roll * toDeg)
+            pitch = pitch * toDeg
+    except:
         pass
-    dataPacket = Data.readline()
-    dataPacket = str(dataPacket, 'utf-8')
-    dataPacket = dataPacket.strip('\r\n')
-    splitPacket = dataPacket.split(",")
-    row = splitPacket
-
-    if int(splitPacket[0]) == 1:
-        q0 = float(row[1])
-        q1 = float(row[2])
-        q2 = float(row[3])
-        q3 = float(row[4])
-        roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
-        roll = -(roll * toDeg)
-        pitch = pitch * toDeg
 
     player.rotation_x = 0
     player.rotation_z = 0
