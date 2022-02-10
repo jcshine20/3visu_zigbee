@@ -116,8 +116,8 @@ def createEndMenu(highscore):
 
     return endMenu
 
-# com = "com7"
-# Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+com = "com7"
+Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 app = Ursina()  # Initialisierung Ursina
 
@@ -212,51 +212,25 @@ def update():
     wert = 10
     max = 15
 
-    # if increment < len(list):
-    #     row = list[increment].split(",")
-    #     increment += 1
-    #
-    #     roll = computeRollAngle(accy=row[1], accz=row[2], gyrox=row[3], phiOld=roll, dt=0.050)
-    #     player.rotation_z =  roll
-    #
-    #     pitch = computePitchAngle(accx=row[0], accz=row[2], gyroy=row[4], thetaOld=pitch, dt=0.050)
-    #     player.rotation_x = pitch
-    #
-    #     if roll >= 20:
-    #         player.x += -wertSteuer * time.dt
-    #     if roll <=-20:
-    #         player.x += wertSteuer * time.dt
-    #     if pitch >= 20:
-    #         player.y += wertSteuer * time.dt
-    #     if pitch <= -20:
-    #         player.y += -wertSteuer * time.dt
-    #
-    # else:
-    #     increment = 0
-    #     player.setPos(0,0,0)
-    #     print("List durch")
-    #
-    #
-    #
 
-    # while (Data.inWaiting() == 0):
-    #     #sleep(0.001)
-    #     pass
-    # dataPacket = Data.readline()
-    # dataPacket = str(dataPacket, 'utf-8')
-    # dataPacket = dataPacket.strip('\r\n')
-    # splitPacket = dataPacket.split(",")
-    # row = splitPacket
-    #
-    # if int(splitPacket[0]) == 1:
-    #     q0 = float(row[1])
-    #     q1 = float(row[2])
-    #     q2 = float(row[3])
-    #     q3 = float(row[4])
-    #     roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+    while (Data.inWaiting() == 0):
+        #sleep(0.001)
+        pass
+    dataPacket = Data.readline()
+    dataPacket = str(dataPacket, 'utf-8')
+    dataPacket = dataPacket.strip('\r\n')
+    splitPacket = dataPacket.split(",")
+    row = splitPacket
 
-    player.rotation_x = 0
-    player.rotation_z = 0
+    if int(splitPacket[0]) == 1:
+        q0 = float(row[1])
+        q1 = float(row[2])
+        q2 = float(row[3])
+        q3 = float(row[4])
+        roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+
+    # player.rotation_x = 0
+    # player.rotation_z = 0
     roll = 0
     pitch = 0
 
