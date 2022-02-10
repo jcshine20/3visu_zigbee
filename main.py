@@ -6,7 +6,8 @@ import serial
 from ursina import *  # import Ursina game engine
 from ursina.shaders import lit_with_shadows_shader
 from computation import transformQuatEuler
-
+from computation import *
+from configparser import ConfigParser
 
 class Asteroid(Entity):  # Klasse Asteroid
     def __init__(self, position=(0, 0, 0)):
@@ -43,6 +44,7 @@ class Explosion(Entity):
                 self.color = color.gray
                 self.model = 'Asteroid'
                 self.scale = 0.2
+                self.shader = shader=lit_with_shadows_shader
             else:
                 self.color = color.red
                 self.model = 'sphere'
@@ -51,6 +53,7 @@ class Explosion(Entity):
             self.model = 'Asteroid'
             self.scale = 0.25
             self.color = color.gray
+            self.shader = shader = lit_with_shadows_shader
 
     def update(self):
         self.x += self.dx
@@ -101,6 +104,25 @@ def createExplosion(vec, num):
     for count in range(num):
         e[count] = Explosion(x, y, z)
 
+class Schild(Entity):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(
+            position=position,
+            model='sphere',
+            collider="box",
+            color=color.yellow,
+
+        )
+
+class Stern(Entity):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(
+            position=position,
+            model='sphere',
+            collider="box",
+            color=color.random_color(),
+        )
+
 
 def createEndMenu(highscore):
     endMenu = EndMenu()
@@ -116,7 +138,7 @@ def createEndMenu(highscore):
 
     return endMenu
 
-com = "com7"
+com = "com5"
 Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 app = Ursina()  # Initialisierung Ursina
@@ -131,24 +153,38 @@ toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
 Sky(texture='sky')
-# Spieler evtl collider sphere??
-# player = Entity(model='Schiff', color=color.dark_gray, scale=(.2, .2, .2), rotation=(0, 180, 0), collider="box")
 player = Player()
 player.collider.visible = False
 
-
+file = 'config.ini'
+config = ConfigParser()
+config.read(file)
+com = config["comport"]["port"]
+amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
+amount = config["user"]["difficulty"]
 positions = [15, 0, -10, -200, -60, -100]
 positionsH = [4, 5, 6]
+
+for entry in range(amounts[amount]):
+    if entry % 2 == 0:
+        pos = random.randint(-200, -100)
+    else:
+        pos = random.randint(100, 200)
+    if pos not in positions:
+        positions.append(pos)
+
 asteroids = []
 herzen = []
 lebend = 2
+schildAnz = 0
 Punktzahl = 0
 highscore = 0
+roll = 0
+pitch = 0
+yaw = 0
+toRad = 2 * np.pi / 360
+toDeg = 1 / toRad
 for i in range(len(positions)):
-    # asteroid = Entity(model='Asteroid', color=color.gray,
-    #                   collider="box", scale=(.5, .5, .5), rotation=(0, 0, 0),
-    #                   shader=lit_with_shadows_shader,
-    #                   position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
     asteroid = Asteroid(position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
     asteroids.append(asteroid)
     asteroid.collider.visible = False
@@ -163,15 +199,14 @@ highscore_text = Text(text=f"Highscore: {player.highscore}", y=.47, x=.6, scale=
 #                        scale=2, font=gamefont, background=True, visible = False)
 '''Audio'''
 collision_audio = Audio('audio\mixkit-short-explosion-1694.wav', loop=False, autoplay=False)
-# dead_audio = Audio('audio\mixkit-shatter-shot-explosion-1693.wav', loop=False, autoplay=False)
-# dead_audio = Audio('audio\mixkit-shot-light-explosion-1682.wav', loop=False, autoplay=False)
+
 dead_audio = Audio('audio\mixkit-system-break-2942.wav', loop=False, autoplay=False)
 
 
 '''Leben'''
 for i in range(len(positionsH)):
-    herz = Entity(model='Sphere', color=color.red,
-                  scale=(.3, .3, .3), position=(positionsH[i], -3, -3))
+    herz = Entity(model='Herz', color=color.red,
+                  scale=(.1, .1, .1), position=(positionsH[i], -3, -3), rotation=(3,-10,0))
     herzen.append(herz)
 
 
@@ -182,10 +217,6 @@ def input(key):
     if held_keys['1']:
         quit()
     if held_keys['2']:
-        # global lebend
-        # global Punktzahl
-        # lebend = 2
-        # Punktzahl = 0
         player.leben = 2
         player.punktzahl = 0
         player.visible = True
@@ -194,10 +225,7 @@ def input(key):
         for i in range(len(positionsH)):
             herzen[i].visible = True
         destroy(endMenu)
-        # score_menu_text.visible = False
-        # herzen[0].visible = True
-        # herzen[1].visible = True
-        # herzen[2].visible = True
+
 
 
 def update():
@@ -209,7 +237,8 @@ def update():
     global pitch
     global endMenu
     wertSteuer = 4
-    wert = 10
+    speeds = dict(easy=10, medium=15, hard=20, very_hard=25)
+    speed = speeds[f'{config["user"]["difficulty"]}']
     max = 15
 
 
@@ -228,11 +257,11 @@ def update():
         q2 = float(row[3])
         q3 = float(row[4])
         roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+        roll = -(roll * toDeg)
+        pitch = pitch * toDeg
 
-    # player.rotation_x = 0
-    # player.rotation_z = 0
-    roll = 0
-    pitch = 0
+    player.rotation_x = 0
+    player.rotation_z = 0
 
     if roll >= 20:
         player.x += -wertSteuer * time.dt
@@ -269,7 +298,7 @@ def update():
         player.x += 1
 
     for asteroid in asteroids:
-        asteroid.z -= wert * time.dt
+        asteroid.z -= speed * time.dt
         asteroid.rotation_x -= random.randint(3, 6)
         asteroid.rotation_y -= random.randint(2, 8)
         if asteroid.z <= -2:
@@ -318,12 +347,6 @@ def update():
 
 
     '''Leben wird weniger'''
-    # if lebend == 2:
-    #     herzen[2].visible = False
-    # if lebend == 1:
-    #     herzen[1].visible = False
-    # if lebend == 0:
-    #     herzen[0].visible = False
     if player.leben == 2:
         herzen[2].visible = False
     if player.leben == 1:
