@@ -6,7 +6,6 @@ import main
 from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton
 from PyQt5 import QtGui, QtCore, QtSvg
 
-
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -46,7 +45,7 @@ class App(QWidget):
         self.option_button.pressed.connect(self.show_options)
 
         self.layout.addWidget(self.option_button)
-
+        
 
         self.show()
 
