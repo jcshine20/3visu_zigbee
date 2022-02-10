@@ -1,3 +1,4 @@
+import subprocess
 from tkinter import *
 from tkinter.font import Font
 from visualization import main
@@ -6,6 +7,9 @@ from visualization import main
 #     t1 = Thread(target=main)
 #     t1.start()
 
+def start_game():
+    root.destroy()
+    subprocess.call("python main.py", shell=True)
 
 def start_visual():
     # for widgets in root.winfo_children():
@@ -53,7 +57,7 @@ start_vis_btn = Button(root, text="Start 3D Visualisation", command=start_visual
 # start_vis_btn.configure()
 start_vis_btn.place(x=250, y=150, anchor="center")
 
-start_game_btn = Button(root, text="Start Game", borderwidth=0, height=btn_height, width=btn_width ,font=buttonFont, bg=blue, fg=milk_white)
+start_game_btn = Button(root, text="Start Game", command=start_game, borderwidth=0, height=btn_height, width=btn_width ,font=buttonFont, bg=blue, fg=milk_white)
 start_game_btn.place(x=250, y=250, anchor="center")
 
 quit_btn = Button(root, text="Quit", borderwidth=0, command=root.destroy, height=2, width=btn_width, font=buttonFont, bg=red, fg=milk_white)
