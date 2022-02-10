@@ -115,6 +115,16 @@ def get_highscore(name):
     return max(cursor.fetchall())[1]
 
 
+def insert_user(name):
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM userscores")
+    namelist = cursor.fetchall()
+    if name not in namelist:
+        cursor.execute("INSERT INTO userscores VALUES (?, ?)", (name, 0))
+        conn.commit()
+
+
 if __name__ == '__main__':
     # for i in range(5):
     #    insert_highscore(f"Username{i}", random.randint(10, 20))
@@ -122,34 +132,17 @@ if __name__ == '__main__':
 
 
 def insert_data(data):
-    tuplelistachse = []
+    
+    def format_data(data_part, i, name):
+        return (data_part[f'{name}_x'][i], data_part[f'{name}_y'][i], data_part[f'{name}_z'][i])
 
-    for entry in range(len(data["achse_x"])):
-        tuplelistachse.append((
-            data["achse_x"][entry],
-            data["achse_y"][entry],
-            data["achse_z"][entry]
-        ))
-    # tuplelistachse[zip(data["achse_x"][entry],
-    #                   data["achse_y"][entry],
-    #                   data["achse_z"][entry]) for data in range(len(data["achse_x"]))]
-    tuplelistgyro = []
-    for entry in range(len(data["achse_x"])):
-        tuplelistgyro.append((
-            data["gyro_x"][entry],
-            data["gyro_y"][entry],
-            data["gyro_z"][entry]
-        ))
-    tuplelistmag = []
-    for entry in range(len(data["achse_x"])):
-        tuplelistmag.append((
-            data["mag_x"][entry],
-            data["mag_y"][entry],
-            data["mag_z"][entry]
-        ))
+    tuplelistachse = [format_data(data, entry, "achse") for entry in range(len(data['achse_x']))]
+    tuplelistgyro = [format_data(data, entry, "gyro") for entry in range(len(data['gyro_x']))]
+    tuplelistmag = [format_data(data, entry, "mag") for entry in range(len(data['gyro_x']))]
+
     namelist = dict(achsen=tuplelistachse, gyroscop=tuplelistgyro, quaterionen=tuplelistmag)
-
-    #for name, data in namelist.items():
+    pass
+    # for name, data in namelist.items():
     #    # cursor.executemany(f"INSERT INTO {name} VALUES (?, ?, ?)", data)
     #    cursor.execute(f"SELECT rowid, * FROM {name} ")
     #    entries = cursor.fetchall()

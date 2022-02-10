@@ -1,17 +1,21 @@
 import sys
 from configparser import ConfigParser
 import database
-import main
-
-from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton
+# import main
+import subprocess
+from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton, \
+    QGridLayout
 from PyQt5 import QtGui, QtCore, QtSvg
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+
 
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        file = 'config.ini'
-        config = ConfigParser()
-        config.read(file)
+        self.file = 'config.ini'
+        self.config = ConfigParser()
+        self.config.read(self.file)
 
         self.setWindowTitle('Game Menu')
         self.setGeometry(450, 150, 300, 250)
@@ -28,24 +32,21 @@ class App(QWidget):
         self.save_button.clicked.connect(self.save_config)
         self.score_button = QPushButton("Show Highscore")
         self.score_button.clicked.connect(self.show_score)
-        self.editcomport = QLineEdit()
-        self.editcomport.setText(config["comport"]["port"])
-        self.labeldifficulty = QLabel("Difficulty")
-        self.labelusername = QLabel("Username")
-        self.labelcomport = QLabel("Comport")
-        self.labelhighscore = QLabel("Show Highscore")
 
-        self.layout.addRow(self.labelusername, self.combousername)
-        self.layout.addRow(self.labelcomport, self.editcomport)
-        self.layout.addRow(self.labeldifficulty, self.combodifficulty)
-        self.layout.addRow(self.labelhighscore, self.score_button)
-        self.layout.addRow(self.save_button, self.start_button)
-
-        self.option_button = QPushButton("Options")
-        self.option_button.pressed.connect(self.show_options)
-
-        self.layout.addWidget(self.option_button)
+        self.label_options = QLabel("Options")
+        self.label_difficulty = QLabel("Difficulty")
+        self.label_username = QLabel("Username")
+        self.label_highscore = QLabel("Show Highscore")
         
+        self.option_button = QPushButton()
+        self.option_button.pressed.connect(self.show_options)
+        self.option_button.setIcon(QIcon("icons\\options.png"))
+        self.option_button.setGeometry(200, 150, 100, 30)
+        self.layout.addRow(self.label_options, self.option_button)
+        self.layout.addRow(self.label_username, self.combousername)
+        self.layout.addRow(self.label_difficulty, self.combodifficulty)
+        self.layout.addRow(self.label_highscore, self.score_button)
+        self.layout.addRow(self.save_button, self.start_button)
 
         self.show()
 
@@ -53,27 +54,24 @@ class App(QWidget):
         self.score_button.setText(str(database.get_highscore(self.combousername.currentText())))
 
     def start_game(self):
-        main.run_game()
+        subprocess.call([r'C:\Users\uie31261\Documents\GitHub\3visu_zigbee\run.bat'])
+        self.close()
 
     def save_config(self):
-        file = 'config.ini'
-        config = ConfigParser()
-        config.read(file)
-        config.set("comport", "port", f"{self.editcomport.text()}")
-        config.set("user", "name", f"{self.combousername.currentText()}")
-        config.set("user", "highscore", f"{database.get_highscore(self.combousername.currentText())}")
-        config.set("user", "difficulty", f"{self.combodifficulty.currentText()}")
-        with open(file, "w") as configfile:
-            config.write(configfile)
+        self.config.set("user", "name", f"{self.combousername.currentText()}")
+        self.config.set("user", "highscore", f"{database.get_highscore(self.combousername.currentText())}")
+        self.config.set("user", "difficulty", f"{self.combodifficulty.currentText()}")
+        with open(self.file, "w") as configfile:
+            self.config.write(configfile)
 
     def show_options(self):
         self.window = Options()
-        #self.window.set_layout(self.label_name.text(), self.config)
         self.window.submitted.connect(self.transmit)
         self.window.show()
 
-    def transmit(self, dict_string):
-        self.alarm_dict.update(json.loads(dict_string))
+    def transmit(self, names):
+        if names != "":
+            self.combousername.addItems(name for name in names.split(","))
 
 
 class Options(QWidget):
@@ -88,30 +86,43 @@ class Options(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.new_names = []
+        self.file = 'config.ini'
+        self.config = ConfigParser()
+        self.config.read(self.file)
+
         self.layout = QGridLayout(self)
-        self.setGeometry(500, 400, 450, 150)
         self.setLayout(self.layout)
-        self.alarm = None
-        self.save_button = QPushButton("Save")
-        self.cema_button = QPushButton("CEMA")
-        self.layout_alarm = QFormLayout()
-        self.image = QtSvg.QSvgWidget(self)
+        self.button_name = QPushButton("Spielernamen speichern")
+        self.button_save = QPushButton("Comport speichern und schließen")
+        self.edit_comport = QLineEdit()
+        self.edit_comport.setText(self.config["comport"]["port"])
+        self.edit_username = QLineEdit()
+        self.label_comport = QLabel("Comport")
+        self.label_username = QLabel("Neuer Spielername")
+        self.layout.addWidget(self.label_comport, self.layout.rowCount() - 1, self.layout.columnCount())
+        self.layout.addWidget(self.edit_comport, self.layout.rowCount() - 1, self.layout.columnCount())
+        self.layout.addWidget(self.label_username, self.layout.rowCount(), self.layout.columnCount() - 2)
+        self.layout.addWidget(self.edit_username, self.layout.rowCount() - 1, self.layout.columnCount() - 1)
+        self.layout.addWidget(self.button_save, self.layout.rowCount(), self.layout.columnCount() - 1)
+        self.layout.addWidget(self.button_name, self.layout.rowCount() - 1, self.layout.columnCount() - 2)
+
+        self.button_name.pressed.connect(self.save_name)
+        self.button_save.pressed.connect(self.save_comport)
+
+    def save_name(self):
+        database.insert_user(str(self.edit_username.text()))
+        self.new_names.append(str(self.edit_username.text()))
+
+    def save_comport(self):
+        self.config.set("comport", "port", f"{self.edit_comport.text()}")
+        with open(self.file, "w") as configfile:
+            self.config.write(configfile)
+        self.submitted.emit(",".join(self.new_names))
+        self.close()
 
 
 if __name__ == '__main__':
-    # file = 'config.ini'
-    # config = ConfigParser()
-    # config.read(file)
-    # print(config["comport"])
-    # print(config.sections())
-    # print(config["comport"]["port"])
-    # config.set("comport", "port", "fffff")
-    # print(config["comport"]["port"])
-    #
-    # with open (file, "w") as configfile:
-    #    config.write(configfile)
-
-    # editable.setCurrentIndex(val - 1)
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
