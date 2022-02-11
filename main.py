@@ -89,7 +89,8 @@ class Player(Entity):
             rotation=(0, 180, 0),
             collider="box"
         )
-        self.leben=2
+        self.leben=3
+        self.schild=0
         self.punktzahl=0
         self.highscore=0
         self.collision_time=0
@@ -105,23 +106,28 @@ def createExplosion(vec, num):
         e[count] = Explosion(x, y, z)
 
 class Schild(Entity):
-    def __init__(self, position=(0,0,0)):
+    def __init__(self, position=(0,0,0),scale=(.03, .03, .03),):
         super().__init__(
             position=position,
-            model='sphere',
+            model='Schild',
             collider="box",
+            scale=(scale),
+            rotation=(0,70,0) ,
             color=color.yellow,
-
         )
+
 
 class Stern(Entity):
     def __init__(self, position=(0,0,0)):
         super().__init__(
             position=position,
-            model='sphere',
+            model='Stern',
             collider="box",
+            scale=(.7, .7, .7),
             color=color.random_color(),
         )
+
+
 
 
 def createEndMenu(highscore):
@@ -176,8 +182,11 @@ for entry in range(amounts[amount]):
 
 asteroids = []
 herzen = []
+schilder = []
+stars = []
 lebend = 2
 schildAnz = 0
+starAnz = 0
 Punktzahl = 0
 highscore = 0
 roll = 0
@@ -209,6 +218,8 @@ for i in range(len(positionsH)):
     herz = Entity(model='Herz', color=color.red,
                   scale=(.1, .1, .1), position=(positionsH[i], -3, -3), rotation=(3,-10,0))
     herzen.append(herz)
+shield = Schild(position=(3,-3,-3),scale=(.02, .02, .02))
+shield.visible = False
 
 
 # 1 und 2
@@ -218,7 +229,7 @@ def input(key):
     if held_keys['1']:
         quit()
     if held_keys['2']:
-        player.leben = 2
+        player.leben = 3
         player.punktzahl = 0
         player.visible = True
         player.setPos(0, 0, 0)
@@ -237,12 +248,15 @@ def update():
     global roll
     global pitch
     global endMenu
+    global schildAnz
+    global starAnz
     wertSteuer = 4
     speeds = dict(easy=10, medium=15, hard=20, very_hard=25)
     speed = speeds[f'{config["user"]["difficulty"]}']
     max = 15
 
     try:
+
         while (Data.inWaiting() == 0):
             #sleep(0.001)
             pass
@@ -251,6 +265,7 @@ def update():
         dataPacket = dataPacket.strip('\r\n')
         splitPacket = dataPacket.split(",")
         row = splitPacket
+
 
         if int(splitPacket[0]) == 1:
             q0 = float(row[1])
@@ -309,17 +324,14 @@ def update():
             # if lebend > 0:
             if player.leben > 0:
                 player.punktzahl += 1
-                # Punktzahl += 1
             else:
                 player.punktzahl = player.punktzahl
-                # Punktzahl = Punktzahl
 
     # kollision Spieler
 
     kollisionSp = player.intersects()
     if isinstance(kollisionSp.entity, Asteroid):
-        if player.leben > 0:
-            # lebend -= 1
+        if (player.leben > 0) & (player.schild < 1) :
             player.leben -= 1
             print("kollision", kollisionSp.world_point)
             print(player.leben)
@@ -327,17 +339,10 @@ def update():
                 player.visible = False
                 createExplosion(kollisionSp.world_point, 9)
                 dead_audio.play()
-                # score = Text(text=f"Your Score is {Punktzahl}", parent=camera.ui, position=(0,0.25), origin=(0,0), scale=2, font=gamefont, background=True)
-                # score_menu_text.visible = True
                 global endMenu
                 endMenu = createEndMenu(player.highscore)
                 player.position = (0,0,-5)
                 if player.highscore < player.punktzahl:
-                    # if highscore < Punktzahl:
-                    # highscore_pop = Text(text=f"New Highscore !", parent=camera.ui, position=(0,0.15), origin=(0,0), scale=2, font=gamefont, background=True)
-                    # destroy(score_menu_text)
-                    # score_menu_text = Text(text=f"Your Score is {Punktzahl}\nNew Highscore!", parent=camera.ui, position=(0,0.25), origin=(0,0), scale=2, font=gamefont, background=True)
-                    # highscore = Punktzahl
                     player.highscore = player.punktzahl
             else:
                 createExplosion(kollisionSp.world_point, 4)
@@ -346,7 +351,20 @@ def update():
                 s1.start()
                 collision_audio.play()
                 # EditorCamera()
-                # if lebend <= 0:
+                # if lebend <= 0:d
+        else:
+            player.schild -= 1
+            print(player.schild)
+            #schild.visible = False
+
+    if isinstance(kollisionSp.entity, Schild):
+        if player.schild < 1:
+            player.schild += 1
+
+    if isinstance(kollisionSp.entity, Stern):
+        player.punktzahl += 20
+
+
 
 
     '''Leben wird weniger'''
@@ -357,6 +375,7 @@ def update():
     if player.leben == 0:
         herzen[0].visible = False
 
+    'Asteroid'
     for asteroid in asteroids:
         kollisionAs = asteroid.intersects()
         if kollisionAs.hit:
@@ -372,6 +391,32 @@ def update():
 
     destroy(highscore_text)
     highscore_text.text = f"Highscore: {player.highscore}"
+
+    'Stern'
+    if(player.punktzahl) >= starAnz * 70 + 70:
+        star = Stern(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
+        stars.append(star)
+        starAnz += 1
+    for star in stars:
+        star.z -= speed *time.dt
+        star.rotation_y += 3
+        kollisionSt = star.intersects()
+        if kollisionSt.hit:
+            star.disable()
+
+
+    'Schild'
+    if (player.punktzahl) >= schildAnz * 60 + 60:
+        schild = Schild(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
+        schilder.append(schild)
+        schildAnz += 1
+    for schild in schilder:
+        schild.z -= speed * time.dt
+        schild.rotation_y -= 4
+    if player.schild == 1:
+        shield.visible = True
+    if player.schild == 0:
+        shield.visible = False
 
 
 app.run()
