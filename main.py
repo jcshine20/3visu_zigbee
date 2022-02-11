@@ -144,8 +144,8 @@ def createEndMenu(highscore):
 
     return endMenu
 
-com = "com5"
-Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+# com = "com5"
+# Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 app = Ursina()  # Initialisierung Ursina
 
@@ -158,7 +158,8 @@ window.fullscreen = False
 toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
-Sky(texture='sky')
+# Sky(texture='sky')
+Entity(model ='quad', texture="images\space.jpg", scale = (100,50), double_sided = True, position=(0,0,100))
 player = Player()
 player.collider.visible = False
 
@@ -204,11 +205,10 @@ points_text = Text(text=f"Punktzahl: {player.punktzahl}", y=.5, x=.6, scale=1.5,
                    font=gamefont)
 highscore_text = Text(text=f"Highscore: {player.highscore}", y=.47, x=.6, scale=1.5, eternal=True, ignore=False, i=0,
                       font=gamefont)
-# score_menu_text = Text(text=f"Your Score is {Punktzahl}", parent=camera.ui, position=(0,0.25), origin=(0,0),
-#                        scale=2, font=gamefont, background=True, visible = False)
+
+
 '''Audio'''
 collision_audio = Audio('audio\mixkit-short-explosion-1694.wav', loop=False, autoplay=False)
-
 dead_audio = Audio('audio\mixkit-system-break-2942.wav', loop=False, autoplay=False)
 
 
@@ -217,6 +217,8 @@ for i in range(len(positionsH)):
     herz = Entity(model='Herz', color=color.red,
                   scale=(.1, .1, .1), position=(positionsH[i], -3, -3), rotation=(3,-10,0))
     herzen.append(herz)
+
+'''Schild'''
 shield = Schild(position=(3,-3,-3),scale=(.02, .02, .02))
 shield.visible = False
 
@@ -254,44 +256,44 @@ def update():
     speed = speeds[f'{config["user"]["difficulty"]}']
     max = 15
 
-    try:
-
-        while (Data.inWaiting() == 0):
-            #sleep(0.001)
-            pass
-        dataPacket = Data.readline()
-        dataPacket = str(dataPacket, 'utf-8')
-        dataPacket = dataPacket.strip('\r\n')
-        splitPacket = dataPacket.split(",")
-        row = splitPacket
-
-
-        if int(splitPacket[0]) == 1:
-            q0 = float(row[1])
-            q1 = float(row[2])
-            q2 = float(row[3])
-            q3 = float(row[4])
-            roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
-            roll = -(roll * toDeg)
-            pitch = pitch * toDeg
-    except:
-        pass
+    # try:
+    #
+    #     while (Data.inWaiting() == 0):
+    #         #sleep(0.001)
+    #         pass
+    #     dataPacket = Data.readline()
+    #     dataPacket = str(dataPacket, 'utf-8')
+    #     dataPacket = dataPacket.strip('\r\n')
+    #     splitPacket = dataPacket.split(",")
+    #     row = splitPacket
+    #
+    #
+    #     if int(splitPacket[0]) == 1:
+    #         q0 = float(row[1])
+    #         q1 = float(row[2])
+    #         q2 = float(row[3])
+    #         q3 = float(row[4])
+    #         roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+    #         roll = -(roll * toDeg)
+    #         pitch = pitch * toDeg
+    # except:
+    #     pass
 
     player.rotation_x = 0
     player.rotation_z = 0
 
-    if roll >= 20:
-        player.x += -wertSteuer * time.dt
-        player.rotation_z = roll
-    if roll <= -20:
-        player.x += wertSteuer * time.dt
-        player.rotation_z = roll
-    if pitch >= 20:
-        player.y += wertSteuer * time.dt
-        player.rotation_x = pitch
-    if pitch <= -20:
-        player.y += -wertSteuer * time.dt
-        player.rotation_x = pitch
+    # if roll >= 20:
+    #     player.x += -wertSteuer * time.dt
+    #     player.rotation_z = roll
+    # if roll <= -20:
+    #     player.x += wertSteuer * time.dt
+    #     player.rotation_z = roll
+    # if pitch >= 20:
+    #     player.y += wertSteuer * time.dt
+    #     player.rotation_x = pitch
+    # if pitch <= -20:
+    #     player.y += -wertSteuer * time.dt
+    #     player.rotation_x = pitch
 
     if held_keys['w']:
         player.y += wertSteuer * time.dt
