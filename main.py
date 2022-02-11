@@ -210,6 +210,7 @@ points_text = Text(text=f"Punktzahl: {player.punktzahl}", y=.5, x=.6, scale=1.5,
                    font=gamefont)
 highscore_text = Text(text=f"Highscore: {player.highscore}", y=.47, x=.6, scale=1.5, eternal=True, ignore=False, i=0,
                       font=gamefont)
+endMenu = None
 
 
 '''Audio'''
@@ -379,7 +380,7 @@ def update():
                 player.visible = False
                 createExplosion(kollisionSp.world_point, 9)
                 dead_audio.play()
-                global endMenu
+                # global endMenu
                 endMenu = createEndMenu(player.highscore)
                 player.position = (0,0,-5)
                 if player.highscore < player.punktzahl:
