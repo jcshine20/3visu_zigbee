@@ -152,7 +152,8 @@ window.fullscreen = False
 toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
-Sky(texture='sky')
+# Sky(texture='sky')
+Entity(model ='quad', texture="images\space.jpg", scale = (100,50), double_sided = True, position=(0,0,100))
 player = Player()
 player.collider.visible = False
 
