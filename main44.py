@@ -171,7 +171,9 @@ amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
 amount = config["user"]["difficulty"]
 positions = [15, 0, -10, -200, -60, -100]
 positionsH = [4, 5, 6]
-datadict = dict(acc_x=[], acc_y=[], acc_z=[], gyro_x=[], gyro_y=[], gyro_z=[], mag_x=[], mag_y=[], mag_z=[], time=[])
+datadict = dict(beschl_x=[], beschl_y=[], beschl_z=[],
+                gyro_x=[], gyro_y=[], gyro_z=[],
+                mag_x=[], mag_y=[], mag_z=[], time=[])
 quater_dict = dict(q0=[], q1=[], q2=[], q3=[], time=[])
 
 for entry in range(amounts[amount]):
@@ -280,6 +282,10 @@ def update():
                 quater_dict["q2"].append(q2)
                 quater_dict["q3"].append(q3)
                 quater_dict["time"].append(datetime.datetime.now().replace(microsecond=0))
+                if len(quater_dict["time"]) >= 60:
+                    database.insert_quater(quater_dict)
+                    for key in quater_dict.keys():
+                        quater_dict[key].clear()
             except:
                 print("?????????????????????")
             roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
@@ -289,9 +295,9 @@ def update():
         elif int(splitPacket[0]) == 0:
             try:
                 relevant = splitPacket[1:10]
-                datadict["acc_x"].append(relevant[0])
-                datadict["acc_y"].append(relevant[1])
-                datadict["acc_z"].append(relevant[2])
+                datadict["beschl_x"].append(relevant[0])
+                datadict["beschl_y"].append(relevant[1])
+                datadict["beschl_z"].append(relevant[2])
                 datadict["gyro_x"].append(relevant[3])
                 datadict["gyro_y"].append(relevant[4])
                 datadict["gyro_z"].append(relevant[5])
@@ -299,8 +305,10 @@ def update():
                 datadict["mag_y"].append(relevant[7])
                 datadict["mag_z"].append(relevant[8])
                 datadict["time"].append(datetime.datetime.now().replace(microsecond=0))
-
-
+                if len(datadict["time"]) >= 60:
+                    database.insert_data(datadict)
+                    for key in datadict.keys():
+                        datadict[key].clear()
             except:
                 print("!!!!!!!!!!!!!!!!!!")
     except:
@@ -321,7 +329,6 @@ def update():
     if pitch <= -20:
         player.y += -wertSteuer * time.dt
         player.rotation_x = pitch
-
     if held_keys['w']:
         player.y += wertSteuer * time.dt
         player.rotation_x = max

@@ -1,8 +1,9 @@
 import random
 import time
 import timeit
-
+import datetime
 import serial
+import database
 from ursina import *  # import Ursina game engine
 from ursina.shaders import lit_with_shadows_shader
 from computation import transformQuatEuler
@@ -15,7 +16,7 @@ class Asteroid(Entity):  # Klasse Asteroid
             position=position,
             model='Asteroid',
             collider="box",
-            color=color.gray,
+            color=color.dark_gray,
             scale=(.5, .5, .5),
             rotation=(0, 0, 0),
             shader=lit_with_shadows_shader
@@ -144,8 +145,11 @@ def createEndMenu(highscore):
 
     return endMenu
 
-# com = "com5"
-# Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+file = 'config.ini'
+config = ConfigParser()
+config.read(file)
+com = config["comport"]["port"]
+Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 app = Ursina()  # Initialisierung Ursina
 
@@ -163,14 +167,15 @@ Entity(model ='quad', texture="images\space.jpg", scale = (100,50), double_sided
 player = Player()
 player.collider.visible = False
 
-file = 'config.ini'
-config = ConfigParser()
-config.read(file)
-com = config["comport"]["port"]
 amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
 amount = config["user"]["difficulty"]
 positions = [15, 0, -10, -200, -60, -100]
 positionsH = [4, 5, 6]
+
+datadict = dict(beschl_x=[], beschl_y=[], beschl_z=[],
+                gyro_x=[], gyro_y=[], gyro_z=[],
+                mag_x=[], mag_y=[], mag_z=[], time=[])
+quater_dict = dict(q0=[], q1=[], q2=[], q3=[], time=[])
 
 for entry in range(amounts[amount]):
     if entry % 2 == 0:
@@ -210,6 +215,8 @@ highscore_text = Text(text=f"Highscore: {player.highscore}", y=.47, x=.6, scale=
 '''Audio'''
 collision_audio = Audio('audio\mixkit-short-explosion-1694.wav', loop=False, autoplay=False)
 dead_audio = Audio('audio\mixkit-system-break-2942.wav', loop=False, autoplay=False)
+star_audio = Audio('audio\mixkit-space-coin-win-notification-271.wav', loop=False, autoplay=False)
+shield_down = Audio('audio\mixkit-tech-break-fail-2947.wav', loop=False, autoplay=False)
 
 
 '''Leben'''
@@ -256,44 +263,76 @@ def update():
     speed = speeds[f'{config["user"]["difficulty"]}']
     max = 15
 
-    # try:
-    #
-    #     while (Data.inWaiting() == 0):
-    #         #sleep(0.001)
-    #         pass
-    #     dataPacket = Data.readline()
-    #     dataPacket = str(dataPacket, 'utf-8')
-    #     dataPacket = dataPacket.strip('\r\n')
-    #     splitPacket = dataPacket.split(",")
-    #     row = splitPacket
-    #
-    #
-    #     if int(splitPacket[0]) == 1:
-    #         q0 = float(row[1])
-    #         q1 = float(row[2])
-    #         q2 = float(row[3])
-    #         q3 = float(row[4])
-    #         roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
-    #         roll = -(roll * toDeg)
-    #         pitch = pitch * toDeg
-    # except:
-    #     pass
+    try:
+
+        while (Data.inWaiting() == 0):
+            # sleep(0.001)
+            pass
+        dataPacket = Data.readline()
+        dataPacket = str(dataPacket, 'utf-8')
+        dataPacket = dataPacket.strip('\r\n')
+        splitPacket = dataPacket.split(",")
+        row = splitPacket
+
+        if int(splitPacket[0]) == 1:
+            # quaterionen
+            q0 = float(row[1])
+            q1 = float(row[2])
+            q2 = float(row[3])
+            q3 = float(row[4])
+            try:
+                quater_dict["q0"].append(q0)
+                quater_dict["q1"].append(q1)
+                quater_dict["q2"].append(q2)
+                quater_dict["q3"].append(q3)
+                quater_dict["time"].append(datetime.datetime.now().replace(microsecond=0))
+                if len(quater_dict["time"]) >= 60:
+                    database.insert_quater(quater_dict)
+                    for key in quater_dict.keys():
+                        quater_dict[key].clear()
+            except:
+                print("?????????????????????")
+            roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
+            roll = -(roll * toDeg)
+            pitch = pitch * toDeg
+
+        elif int(splitPacket[0]) == 0:
+            try:
+                relevant = splitPacket[1:10]
+                datadict["beschl_x"].append(relevant[0])
+                datadict["beschl_y"].append(relevant[1])
+                datadict["beschl_z"].append(relevant[2])
+                datadict["gyro_x"].append(relevant[3])
+                datadict["gyro_y"].append(relevant[4])
+                datadict["gyro_z"].append(relevant[5])
+                datadict["mag_x"].append(relevant[6])
+                datadict["mag_y"].append(relevant[7])
+                datadict["mag_z"].append(relevant[8])
+                datadict["time"].append(datetime.datetime.now().replace(microsecond=0))
+                if len(datadict["time"]) >= 60:
+                    database.insert_data(datadict)
+                    for key in datadict.keys():
+                        datadict[key].clear()
+            except:
+                print("!!!!!!!!!!!!!!!!!!")
+    except:
+        pass
 
     player.rotation_x = 0
     player.rotation_z = 0
 
-    # if roll >= 20:
-    #     player.x += -wertSteuer * time.dt
-    #     player.rotation_z = roll
-    # if roll <= -20:
-    #     player.x += wertSteuer * time.dt
-    #     player.rotation_z = roll
-    # if pitch >= 20:
-    #     player.y += wertSteuer * time.dt
-    #     player.rotation_x = pitch
-    # if pitch <= -20:
-    #     player.y += -wertSteuer * time.dt
-    #     player.rotation_x = pitch
+    if roll >= 20:
+        player.x += -wertSteuer * time.dt
+        player.rotation_z = roll
+    if roll <= -20:
+        player.x += wertSteuer * time.dt
+        player.rotation_z = roll
+    if pitch >= 20:
+        player.y += wertSteuer * time.dt
+        player.rotation_x = pitch
+    if pitch <= -20:
+        player.y += -wertSteuer * time.dt
+        player.rotation_x = pitch
 
     if held_keys['w']:
         player.y += wertSteuer * time.dt
@@ -355,6 +394,7 @@ def update():
                 # if lebend <= 0:d
         else:
             player.schild -= 1
+            shield_down.play()
             print(player.schild)
             #schild.visible = False
 
@@ -381,11 +421,6 @@ def update():
         kollisionAs = asteroid.intersects()
         if kollisionAs.hit:
             asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(30, 40))
-        # if lebend <= 0:
-        #     player.visible = False
-        #     explosion = Entity(model='sphere', color=color.red, scale=1, position=kollisionSp.world_point)
-        #     explosion.animate_scale(3,.3)
-        #     destroy(explosion, delay=.3)
 
     destroy(points_text)
     points_text.text = f"Punktzahl: {player.punktzahl}"
@@ -403,6 +438,7 @@ def update():
         star.rotation_y += 3
         kollisionSt = star.intersects()
         if kollisionSt.hit:
+            star_audio.play()
             star.disable()
 
 
