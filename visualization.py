@@ -10,7 +10,7 @@ toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
 
 com = "com7"
-Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+#Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 
 def createCanvas():

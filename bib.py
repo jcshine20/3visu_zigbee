@@ -90,3 +90,81 @@ cursor.execute("""CREATE TABLE userscores (
 # plt.show()
 
 # ani = FuncAnimation(plt.gcf(), animate, 100)
+
+
+
+def get_pitch_data():
+    pitchdatalist = []
+    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    pitchdatalist.append(temp[0][0])
+    pitchdatalist.append(temp[0][2])
+    cursor.execute("SELECT * FROM gyroscop ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    pitchdatalist.append(temp[0][1])
+    return pitchdatalist
+
+
+def get_roll_data():
+    rolldatalist = []
+    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    rolldatalist.append(temp[0][1])
+    rolldatalist.append(temp[0][2])
+    cursor.execute("SELECT * FROM gyroscop ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    rolldatalist.append(temp[0][2])
+    return rolldatalist
+
+
+def get_yaw_data():
+    yawdatalist = []
+    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
+    temp = cursor.fetchall()
+    yawdatalist.append(temp[0][0])
+    yawdatalist.append(temp[0][1])
+    yawdatalist.append(temp[0][2])
+    return yawdatalist
+
+
+def computePitchAngle(beschlx, beschlz, gyroy, thetaOld, dt):
+    beschlx = float(beschlx)
+    beschlz = float(beschlz)
+    gyroy = float(gyroy)
+    thetaMeasured = -math.atan2(beschlx / 9.8, beschlz / 9.8) / 2 / np.pi * 360
+    theta = (thetaOld + gyroy * dt) * 0.95 + thetaMeasured * 0.05
+    return theta
+
+
+def computeRollAngle(beschly, beschlz, gyrox, phiOld, dt):
+    beschly = float(beschly)
+    beschlz = float(beschlz)
+    gyrox = float(gyrox)
+    phiMeasured = math.atan2(beschly / 9.8, beschlz / 9.8) / 2 / np.pi * 360
+    phi = (phiOld - gyrox * dt) * 0.95 + phiMeasured * 0.05
+    return phi
+
+
+def computeYawAngle(theta, phi, magx, magy, magz):
+    magx = float(magx)
+    magy = float(magy)
+    magz = float(magz)
+    phiRad = phi * toRad
+    thetaRad = theta * toRad
+    xMagnetometer = magx * math.cos(thetaRad) - magy * math.sin(phiRad) * math.sin(thetaRad) + magz * math.cos(
+        phiRad) * math.sin(thetaRad)
+    yMagnetometer = magy * math.cos(phiRad) + magz * math.sin(phiRad)
+    phi = math.atan2(xMagnetometer, yMagnetometer) * toDeg
+    return phi
+
+
+theta = 0
+phi = 0
+counter = 12
+toRad = 2 * np.pi / 360
+toDeg = 1 / toRad
+#plt.style.use('fivethirtyeight')
+roll_vals = []
+pitch_val = []
+yaw_vals = []
+index = count()

@@ -1,6 +1,7 @@
 import random
 import timeit
-
+import database
+from configparser import ConfigParser
 from ursina import *  # import Ursina game engine
 from ursina.shaders import lit_with_shadows_shader
 
@@ -75,8 +76,22 @@ Sky(texture='sky')
 # Spieler evtl collider sphere??
 player = Entity(model='Schiff', color=color.dark_gray, scale=(.2, .2, .2), rotation=(0, 180, 0), collider="box")
 player.collider.visible = False
-
+file = 'config.ini'
+config = ConfigParser()
+config.read(file)
+com = config["comport"]["port"]
+amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
+amount = config["user"]["difficulty"]
 positions = [15, 0, -10, -200, -60, -100]
+
+for entry in range(amounts[amount]):
+    if entry % 2 == 0:
+        pos = random.randint(-200, -100)
+    else:
+        pos = random.randint(100, 200)
+    if pos not in positions:
+        positions.append(pos)
+
 positionsH = [4, 5, 6]
 asteroids = []
 herzen = []
@@ -100,12 +115,16 @@ highscore_text = Text(text=f"Highscore: {highscore}", y=.47, x=.6, scale=1.5, et
                       font=gamefont)
 
 '''Leben'''
-for i in range(len(positionsH)):
+for i in positionsH:
     herz = Entity(model='Sphere', color=color.red,
-                  scale=(.3, .3, .3), position=(positionsH[i], -3, -3))
+                  scale=(.3, .3, .3), position=(i, -3, -3))
     herzen.append(herz)
 
-
+#'''Leben'''
+#for i in range(len(positionsH)):
+#    herz = Entity(model='Sphere', color=color.red,
+#                  scale=(.3, .3, .3), position=(positionsH[i], -3, -3))
+#    herzen.append(herz)
 # 1 und 2
 def input(key):
     if held_keys['space']:
@@ -134,8 +153,9 @@ def update():
     global highscore
     global roll
     global pitch
+    speeds = dict(easy=10, medium=15, hard=20, very_hard=25)
     wertSteuer = 4
-    wert = 10
+    speed = speeds[f'{config["user"]["difficulty"]}']
     max = 15
 
     # if increment < len(list):
@@ -213,7 +233,7 @@ def update():
         player.x += 1
 
     for asteroid in asteroids:
-        asteroid.z -= wert * time.dt
+        asteroid.z -= speed * time.dt
         asteroid.rotation_x -= random.randint(3, 6)
         asteroid.rotation_y -= random.randint(2, 8)
         if asteroid.z <= -2:
