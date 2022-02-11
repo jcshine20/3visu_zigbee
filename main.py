@@ -135,11 +135,13 @@ def createEndMenu(highscore):
     endMenu = EndMenu()
     if player.highscore > player.punktzahl:
         Text(text=f"Your Score is {player.punktzahl}", parent=endMenu, position=(0, .25), origin=(0, 0),
-                               scale=3, font=gamefont, background=True, visible=True)
+                               scale=3, font=gamefont, background=False, visible=True)
     else:
-        Text(text=f"Your Score is {player.punktzahl}\nNew Highscore !", parent=endMenu, position=(0, .25), origin=(0, 0),
-                               scale=3, font=gamefont, background=True, visible=True)
-    Text(text="Press 2\nto play again", parent=endMenu, position=(-0.15, -0.25), origin=(0,0), scale=3, font=gamefont,
+        Text(text=f"Your Score is {player.punktzahl}\n  New Highscore !", parent=endMenu, position=(0, .25), origin=(0, 0),
+                               scale=3, font=gamefont, background=False, visible=True, color = color.yellow)
+    Text(text="     Press 2\nplay again", parent=endMenu, position=(-0.25, -0.25), origin=(0,0), scale=3, font=gamefont,
+         background=False, visible=True)
+    Text(text="Press 1\n   quit", parent=endMenu, position=(0.25, -0.25), origin=(0, 0), scale=3, font=gamefont,
          background=False, visible=True)
 
 
@@ -159,7 +161,7 @@ window.borderless = True
 window.exit_button.visible = True
 window.fps_counter.enabled = True
 window.fullscreen = False
-toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
+# toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
 # Sky(texture='sky')
@@ -420,7 +422,7 @@ def update():
     if player.leben == 0:
         herzen[0].visible = False
 
-    'Asteroid'
+    '''Asteroid'''
     for asteroid in asteroids:
         kollisionAs = asteroid.intersects()
         if kollisionAs.hit:
@@ -432,7 +434,7 @@ def update():
     destroy(highscore_text)
     highscore_text.text = f"Highscore: {player.highscore}"
 
-    'Stern'
+    '''Stern'''
     if(player.punktzahl) >= starAnz * 70 + 70:
         star = Stern(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
         stars.append(star)
@@ -446,7 +448,7 @@ def update():
             star.disable()
 
 
-    'Schild'
+    '''Schild'''
     if (player.punktzahl) >= schildAnz * 60 + 60:
         schild = Schild(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
         schilder.append(schild)

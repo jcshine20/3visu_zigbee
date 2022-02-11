@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e0255673-efc4-4693-b627-1aa91e1d5f96" name="Default Changelist" comment="add new font style">
-    <list default="true" id="e0255673-efc4-4693-b627-1aa91e1d5f96" name="Default Changelist" comment="Star/Shield">
+    <list default="true" id="e0255673-efc4-4693-b627-1aa91e1d5f96" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_02_2022_18_37__Default_Changelist_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_02_2022_18_37__Default_Changelist_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -145,9 +145,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.main22" />
         <item itemvalue="Python.home_gui (1)" />
         <item itemvalue="Python.visualization" />
+        <item itemvalue="Python.main22" />
         <item itemvalue="Python.home_gui" />
       </list>
     </recent_temporary>
