@@ -219,6 +219,7 @@ dead_audio = Audio('audio\mixkit-system-break-2942.wav', loop=False, autoplay=Fa
 star_audio = Audio('audio\mixkit-space-coin-win-notification-271.wav', loop=False, autoplay=False)
 shield_down = Audio('audio\mixkit-tech-break-fail-2947.wav', loop=False, autoplay=False)
 shield_collect = Audio('audio\mixkit-achievement-completed-2068.wav', loop=False, autoplay=False)
+sound = Audio('audio\mixkit-1980-290.mp3',loop=True, autoplay=True, volume=0.1)
 
 
 '''Leben'''
@@ -403,6 +404,7 @@ def update():
     if isinstance(kollisionSp.entity, Schild):
         if player.schild < 1:
             player.schild += 1
+            shield_collect.play()
 
     if isinstance(kollisionSp.entity, Stern):
         player.punktzahl += 20
