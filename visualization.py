@@ -1,3 +1,5 @@
+from configparser import ConfigParser
+
 from vpython import *
 from computation import *
 
@@ -9,8 +11,8 @@ from datetime import datetime
 toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
 
-# com = "com7"
-# Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+#com = "com5"
+#Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 
 def createCanvas():
@@ -186,8 +188,11 @@ def main():
     # '''Build up Graph for Euler Angels'''
     # gd, pitchCurve, rollCurve, yawCurve = createEulerGraph()
     # gd.align = "right"
-    com = "com7"
-    Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+    file = 'config.ini'
+    config = ConfigParser()
+    config.read(file)
+    com = config["comport"]["port"]
+    Data = serial.Serial(com, 38400)  # arduino anpassen!!!!
 
     '''Build up Scene for Euler Angels'''
     scene = createCanvas()

@@ -40,12 +40,13 @@ class Explosion(Entity):
         self.change_scale = random.randint(1, 3) / 150  # speed of how scale changes
 
         if player.leben <= 0:
-            j = random.randint(0, 9)
+        # if lebend <= 0:
+            j = random.randint(0, 17)
             if (j % 3) == 0:  # 40% mini-asteroids, 60% red spheres
-                self.color = color.gray
+                self.color = color.dark_gray
                 self.model = 'Asteroid'
                 self.scale = 0.2
-                self.shader = lit_with_shadows_shader
+                self.shader = shader=lit_with_shadows_shader
             else:
                 self.color = color.red
                 self.model = 'sphere'
@@ -53,8 +54,8 @@ class Explosion(Entity):
         else:
             self.model = 'Asteroid'
             self.scale = 0.25
-            self.color = color.gray
-            self.shader = lit_with_shadows_shader
+            self.color = color.dark_gray
+            self.shader = shader = lit_with_shadows_shader
 
     def update(self):
         self.x += self.change_coordinate_x
@@ -96,6 +97,8 @@ class Player(Entity):
         self.punktzahl = 0
         self.highscore = 0
         self.collision_time = 0
+        self.amount = None
+        self.username = "invalid"
 
 
 def createExplosion(vec, num):
@@ -152,7 +155,8 @@ file = 'config.ini'
 config = ConfigParser()
 config.read(file)
 com = config["comport"]["port"]
-Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
+Data = serial.Serial(com, 38400)  # arduino anpassen!!!!
+
 app = Ursina()  # Initialisierung Ursina
 
 # Fenster Einstellungen
@@ -164,12 +168,12 @@ window.fullscreen = False
 # toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
+# Sky(texture='sky')
 Entity(model='quad', texture="images\space.jpg", scale=(100, 50), double_sided=True, position=(0, 0, 100))
 player = Player()
 player.collider.visible = False
 
 amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
-amount = config["user"]["difficulty"]
 positions = [15, 0, -10, -200, -60, -100]
 positionsH = [4, 5, 6]
 
@@ -178,20 +182,18 @@ datadict = dict(beschl_x=[], beschl_y=[], beschl_z=[],
                 mag_x=[], mag_y=[], mag_z=[], time=[])
 quater_dict = dict(q0=[], q1=[], q2=[], q3=[], time=[])
 
-for entry in range(amounts[amount]):
-    if entry % 2 == 0:
-        pos = random.randint(-200, -100)
-    else:
-        pos = random.randint(100, 200)
-    if pos not in positions:
-        positions.append(pos)
+
 
 asteroids = []
 herzen = []
 schilder = []
 stars = []
+lebend = 2
 schildAnz = 0
 starAnz = 0
+speedAnz = 0
+Punktzahl = 0
+highscore = 0
 roll = 0
 pitch = 0
 yaw = 0
@@ -232,11 +234,12 @@ for i in range(len(positionsH)):
 shield = Schild(position=(3, -3, -3), scale=(.02, .02, .02))
 shield.visible = False
 
+speeds = dict(easy=10, medium=15, hard=20, very_hard=25)
+speed = speeds[f'{config["user"]["difficulty"]}']
+
 
 # 1 und 2
 def input(key):
-    if held_keys['space']:
-        print(player.rotation_x)
     if held_keys['1']:
         quit()
     if held_keys['2']:
@@ -250,11 +253,23 @@ def input(key):
         destroy(endMenu)
         global starAnz
         global schildAnz
+        global speedAnz
         starAnz = 0
         schildAnz = 0
+        speedAnz = 0
 
 
 def update():
+    if player.punktzahl == 0:
+        player.amount = config["user"]["difficulty"]
+        player.username = config["user"]["name"]
+        for entry in range(amounts[player.amount]):
+            if entry % 2 == 0:
+                pos = random.randint(-200, -100)
+            else:
+                pos = random.randint(100, 200)
+            if pos not in positions:
+                positions.append(pos)
     # steuerung Spieler
     global roll
     global pitch
@@ -262,9 +277,10 @@ def update():
     global endMenu
     global schildAnz
     global starAnz
+    global speedAnz
+    global speed
     wertSteuer = 4
-    speeds = dict(easy=10, medium=15, hard=20, very_hard=25)
-    speed = speeds[f'{config["user"]["difficulty"]}']
+
     max = 15
 
     try:
@@ -277,6 +293,7 @@ def update():
         dataPacket = dataPacket.strip('\r\n')
         splitPacket = dataPacket.split(",")
         row = splitPacket
+       # print(splitPacket)
 
         if int(splitPacket[0]) == 1:
             # quaterionen
@@ -361,6 +378,10 @@ def update():
         player.x += 1
 
     for asteroid in asteroids:
+        if player.punktzahl >= speedAnz * 150 + 150 and speed < 40:
+            speed = speed + 5
+            print(speed)
+            speedAnz += 1
         asteroid.z -= speed * time.dt
         asteroid.rotation_x -= random.randint(3, 6)
         asteroid.rotation_y -= random.randint(2, 8)
@@ -384,6 +405,7 @@ def update():
                 createExplosion(kollisionSp.world_point, 9)
                 dead_audio.play()
                 endMenu = createEndMenu(player.highscore)
+                database.insert_highscore(player.username, player.punktzahl)
                 player.position = (0, 0, -5)
                 if player.highscore < player.punktzahl:
                     player.highscore = player.punktzahl
@@ -394,20 +416,20 @@ def update():
                 s1.start()
                 collision_audio.play()
                 # EditorCamera()
-                # if lebend <= 0:d
+
         else:
             player.schild -= 1
             shield_down.play()
             print(player.schild)
             # schild.visible = False
 
-    if isinstance(kollisionSp.entity, Schild):
-        if player.schild < 1:
-            player.schild += 1
-            shield_collect.play()
+   # if isinstance(kollisionSp.entity, Schild):
 
-    if isinstance(kollisionSp.entity, Stern):
-        player.punktzahl += 20
+
+
+    #if isinstance(kollisionSp.entity, Stern):
+
+
 
     '''Leben wird weniger'''
     if player.leben == 2:
@@ -425,7 +447,7 @@ def update():
 
 
     '''Stern'''
-    if (player.punktzahl) >= starAnz * 70 + 70:
+    if player.punktzahl >= starAnz * 30 + 30:
         star = Stern(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
         stars.append(star)
         starAnz += 1
@@ -434,17 +456,26 @@ def update():
         star.rotation_y += 3
         kollisionSt = star.intersects()
         if isinstance(kollisionSt.entity, Player):
+            star.setPos(-10,-10,-10)
             star_audio.play()
             star.disable()
+            player.punktzahl += 20
 
     '''Schild'''
-    if (player.punktzahl) >= schildAnz * 60 + 60:
+    if (player.punktzahl) >= schildAnz * 40 + 40:
         schild = Schild(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
         schilder.append(schild)
         schildAnz += 1
     for schild in schilder:
         schild.z -= speed * time.dt
         schild.rotation_y -= 4
+        kollisionSh = schild.intersects()
+        if isinstance(kollisionSh.entity, Player):
+            if player.schild < 1:
+                player.schild += 1
+                print(player.schild)
+            shield_collect.play()
+            schild.disable()
     if player.schild == 1:
         shield.visible = True
     if player.schild == 0:

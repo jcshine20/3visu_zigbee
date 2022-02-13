@@ -2,148 +2,56 @@ import datetime
 import sqlite3
 import random
 from itertools import count
-#import pandas as pd
-#import matplotlib.pyplot as plt
-#from matplotlib.animation import FuncAnimation
-#import csv
 import math
 import numpy as np
-#import matplotlib.pyplot as plt
 import time
 
+"""
+In this file, all database actions take place
+The database of choice is sqlite, which is 
+a built in python database library
 
-def get_pitch_data():
-    pitchdatalist = []
-    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
-    temp = cursor.fetchall()
-    pitchdatalist.append(temp[0][0])
-    pitchdatalist.append(temp[0][2])
-    cursor.execute("SELECT * FROM gyroscop ORDER BY ROWID ASC LIMIT 1")
-    temp = cursor.fetchall()
-    pitchdatalist.append(temp[0][1])
-    return pitchdatalist
+conn: serves a connection to the database "data.db", takes two extra parameters
+which are set to work better with timestamps, more on that can be found in the link below
+https://pynative.com/python-sqlite-date-and-datetime/
 
+cursor: is the object which executes all the queries send to the database
 
-def get_roll_data():
-    rolldatalist = []
-    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
-    temp = cursor.fetchall()
-    rolldatalist.append(temp[0][1])
-    rolldatalist.append(temp[0][2])
-    cursor.execute("SELECT * FROM gyroscop ORDER BY ROWID ASC LIMIT 1")
-    temp = cursor.fetchall()
-    rolldatalist.append(temp[0][2])
-    return rolldatalist
-
-
-def get_yaw_data():
-    yawdatalist = []
-    cursor.execute("SELECT * FROM achsen ORDER BY ROWID ASC LIMIT 1")
-    temp = cursor.fetchall()
-    yawdatalist.append(temp[0][0])
-    yawdatalist.append(temp[0][1])
-    yawdatalist.append(temp[0][2])
-    return yawdatalist
-
-
-def computePitchAngle(beschlx, beschlz, gyroy, thetaOld, dt):
-    beschlx = float(beschlx)
-    beschlz = float(beschlz)
-    gyroy = float(gyroy)
-    thetaMeasured = -math.atan2(beschlx / 9.8, beschlz / 9.8) / 2 / np.pi * 360
-    theta = (thetaOld + gyroy * dt) * 0.95 + thetaMeasured * 0.05
-    return theta
-
-
-def computeRollAngle(beschly, beschlz, gyrox, phiOld, dt):
-    beschly = float(beschly)
-    beschlz = float(beschlz)
-    gyrox = float(gyrox)
-    phiMeasured = math.atan2(beschly / 9.8, beschlz / 9.8) / 2 / np.pi * 360
-    phi = (phiOld - gyrox * dt) * 0.95 + phiMeasured * 0.05
-    return phi
-
-
-def computeYawAngle(theta, phi, magx, magy, magz):
-    magx = float(magx)
-    magy = float(magy)
-    magz = float(magz)
-    phiRad = phi * toRad
-    thetaRad = theta * toRad
-    xMagnetometer = magx * math.cos(thetaRad) - magy * math.sin(phiRad) * math.sin(thetaRad) + magz * math.cos(
-        phiRad) * math.sin(thetaRad)
-    yMagnetometer = magy * math.cos(phiRad) + magz * math.sin(phiRad)
-    phi = math.atan2(xMagnetometer, yMagnetometer) * toDeg
-    return phi
-
-
-theta = 0
-phi = 0
-counter = 12
-toRad = 2 * np.pi / 360
-toDeg = 1 / toRad
-#plt.style.use('fivethirtyeight')
-roll_vals = []
-pitch_val = []
-yaw_vals = []
-index = count()
-
+Those two objects are initialized multiple times in the file, this is due to me not being
+able to make the program run smoothly with only one instantiation, I tried static ones,
+global ones, but everytime I tried to reduce the number of inits, the program wouldn't wor properly
+"""
 conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
 cursor = conn.cursor()
 
-datadict = dict(beschl_x=[], beschl_y=[], beschl_z=[],
-                gyro_x=[], gyro_y=[], gyro_z=[],
-                mag_x=[], mag_y=[], mag_z=[], time=[])
-
-
-def insert_highscore(name, highscore, dt=datetime.datetime.now().replace(microsecond=0)):
-    cursor.execute("INSERT INTO userscores VALUES (?, ?, ?)", (name, highscore, dt))
-    # cursor.execute("SELECT * FROM userscores")
-    # entries = cursor.fetchall()
-    # for entry in entries:
-    #    print(entry)
-
-
-def get_usernames():
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT username FROM userscores")
-    entries = cursor.fetchall()
-    return {entry for entry in entries}
-
-
-def get_highscore(name):
-    conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM userscores WHERE username = '{name}'")
-    return max(cursor.fetchall())[1]
-
-
-def insert_user(name, dt=datetime.datetime.now().replace(microsecond=0)):
-    conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM userscores")
-    namelist = cursor.fetchall()
-    if name not in namelist:
-        cursor.execute("INSERT INTO userscores VALUES (?, ?, ?)", (name, 0, dt))
-        conn.commit()
-
 
 if __name__ == '__main__':
-    #insert_highscore(f"Username{11}", random.randint(10, 20), datetime.datetime.now().replace(microsecond=0))
-    conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM quaterionen")
-    entries = cursor.fetchall()
-    for entry in entries:
-        print(f" rowID: {entry[0]} x:{entry[1]}   _y:{entry[2]}  _z:{entry[3]} {entry[4]}")
-
-
-# print(get_usernames())
+   conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+   cursor = conn.cursor()
+  #
+   data = ("test", 100, datetime.datetime.now().replace(microsecond=0))
+   #cursor.execute(f"INSERT INTO userscores VALUES (?, ?, ?)", data)
+   cursor.execute("DELETE FROM userscores WHERE username = Test")
+   entries = cursor.fetchall()
+   for entry in entries:
+       print(entry)
 
 
 def insert_data(data):
+    """
+    This method takes incoming data as a parameter and saves it into the database
+    All the data comes combined in one single dictionary
+
+    The three lists split up the data, so they can be written easy to the database
+
+    :var: namelist is wrongfully named a lists, when in reality, it is a dictionary
+    containing the aforementioned three lists with the sensor data
+    its purpose is to make storing data in the database more conveninet and readable
+
+
+    :param data: is a dictionary containing (usually 60 sets of) data in addition to
+    a timestamp, which will also be saved into the database
+    """
     def format_data(data_part, i, name):
         return data_part[f'{name}_x'][i], data_part[f'{name}_y'][i], data_part[f'{name}_z'][i], data_part["time"][i]
 
@@ -166,6 +74,7 @@ def insert_data(data):
 def insert_quater(data):
     conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cursor = conn.cursor()
+
     def format_data(data_part, i):
         return data_part["q0"][i], data_part["q1"][i], data_part["q2"][i], data_part["q3"][i], data_part["time"][i]
 
@@ -173,21 +82,57 @@ def insert_quater(data):
     cursor.executemany(f"INSERT INTO quaterionen VALUES (?, ?, ?, ?, ?)", tuplelistquater)
 
 
-for set in open('bewegung.txt', 'r'):
-    set.strip('\n')
-    setlist = set.split(",")
-    if 'accx' not in setlist and len(set) > 5:
-        datadict["beschl_x"].append(setlist[0])
-        datadict["beschl_y"].append(setlist[1])
-        datadict["beschl_z"].append(setlist[2])
-        datadict["gyro_x"].append(setlist[3])
-        datadict["gyro_y"].append(setlist[4])
-        datadict["gyro_z"].append(setlist[5])
-        datadict["mag_x"].append(setlist[6])
-        datadict["mag_y"].append(setlist[7])
-        datadict["mag_z"].append(setlist[8])
-        datadict["time"].append(datetime.datetime.now().replace(microsecond=0))
+def insert_user(name, dt=datetime.datetime.now().replace(microsecond=0)):
+    """
+    stores username in database, if it isn't there already
+    :param name: name to save in database
+    :param dt: timestamp, defaulting to current time, to determine user creation time
+    """
+    conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM userscores")
+    namelist = cursor.fetchall()
+    listname, _, _2 = zip(*namelist)
+    if name not in listname:
+        cursor.execute("INSERT INTO userscores VALUES (?, ?, ?)", (name, 0, dt))
+    conn.commit()
+    conn.close()
 
-#insert_data(datadict)
+
+def insert_highscore(name, highscore, dt=datetime.datetime.now().replace(microsecond=0)):
+    # Saves username along with the achieved highscore to database, again with a timestamp
+    conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO userscores VALUES (?, ?, ?)", (name, highscore, dt))
+    cursor.execute("SELECT * FROM userscores")
+    entries = cursor.fetchall()
+    for entry in entries:
+        print(entry)
+    conn.commit()
+    conn.close()
+
+
+def get_usernames():
+    """
+    :return: all usernames currently saved in the database
+    """
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT username FROM userscores")
+    entries = cursor.fetchall()
+    return {entry for entry in entries}
+
+
+def get_highscore(name):
+    """
+    :param name: username to receive highscore from
+    :return: highscore of given user
+    """
+    conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM userscores WHERE username = '{name}'")
+    return max(cursor.fetchall())[1]
+
+
 conn.commit()
 conn.close()
