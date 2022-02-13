@@ -31,22 +31,21 @@ class Explosion(Entity):
         self.x = x
         self.y = y
         self.z = z
-        self.dx = random.randint(-2, 2) / 50  # speed of how x coordinate changes
-        self.dy = random.randint(-2, 2) / 50  # speed of how y coordinate changes
-        self.dz = random.randint(-2, 2) / 50  # speed of how z coordinate changes
-        self.rx = random.randint(-5, 5)  # speed of x rotation
-        self.ry = random.randint(-5, 5)  # speed of y rotation
-        self.rz = random.randint(-5, 5)  # speed of z rotation
-        self.ds = random.randint(1, 3) / 150  # speed of how scale changes
+        self.change_coordinate_x = random.randint(-2, 2) / 50  # speed of how x coordinate changes
+        self.change_coordinate_y = random.randint(-2, 2) / 50  # speed of how y coordinate changes
+        self.change_coordinate_z = random.randint(-2, 2) / 50  # speed of how z coordinate changes
+        self.change_rotation_x = random.randint(-5, 5)  # speed of x rotation
+        self.change_rotation_y = random.randint(-5, 5)  # speed of y rotation
+        self.change_rotation_z = random.randint(-5, 5)  # speed of z rotation
+        self.change_scale = random.randint(1, 3) / 150  # speed of how scale changes
 
         if player.leben <= 0:
-            # if lebend <= 0:
             j = random.randint(0, 9)
             if (j % 3) == 0:  # 40% mini-asteroids, 60% red spheres
                 self.color = color.gray
                 self.model = 'Asteroid'
                 self.scale = 0.2
-                self.shader = shader = lit_with_shadows_shader
+                self.shader = lit_with_shadows_shader
             else:
                 self.color = color.red
                 self.model = 'sphere'
@@ -55,16 +54,16 @@ class Explosion(Entity):
             self.model = 'Asteroid'
             self.scale = 0.25
             self.color = color.gray
-            self.shader = shader = lit_with_shadows_shader
+            self.shader = lit_with_shadows_shader
 
     def update(self):
-        self.x += self.dx
-        self.y += self.dy
-        self.z += self.dz
-        self.rotation_x += self.rx
-        self.rotation_y += self.ry
-        self.rotation_z += self.rz
-        self.scale -= self.ds
+        self.x += self.change_coordinate_x
+        self.y += self.change_coordinate_y
+        self.z += self.change_coordinate_z
+        self.rotation_x += self.change_rotation_x
+        self.rotation_y += self.change_rotation_y
+        self.rotation_z += self.change_rotation_z
+        self.scale -= self.change_scale
         if self.scale <= 0.005:
             destroy(self)
 
@@ -154,7 +153,6 @@ config = ConfigParser()
 config.read(file)
 com = config["comport"]["port"]
 Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
-
 app = Ursina()  # Initialisierung Ursina
 
 # Fenster Einstellungen
@@ -166,7 +164,6 @@ window.fullscreen = False
 # toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
-# Sky(texture='sky')
 Entity(model='quad', texture="images\space.jpg", scale=(100, 50), double_sided=True, position=(0, 0, 100))
 player = Player()
 player.collider.visible = False
@@ -193,12 +190,12 @@ asteroids = []
 herzen = []
 schilder = []
 stars = []
-lebend = 2
 schildAnz = 0
 starAnz = 0
 roll = 0
 pitch = 0
 yaw = 0
+battery = 0
 toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
 
@@ -213,11 +210,13 @@ points_text = Text(text=f"Punktzahl: {player.punktzahl}", y=.5, x=.6, scale=1.5,
                    font=gamefont)
 highscore_text = Text(text=f"Highscore: {player.highscore}", y=.47, x=.6, scale=1.5, eternal=True, ignore=False, i=0,
                       font=gamefont)
+battery_text = Text(text=f"Batterie: {battery}%", parent=camera.ui, scale=1.5, position=window.top_left, eternal=True,
+                    ignore=False, font = gamefont)
 endMenu = None
 
 '''Audio'''
-collision_audio = Audio('audio\mixkit-short-explosion-1694.wav', loop=False, autoplay=False, volume =.3)
-dead_audio = Audio('audio\mixkit-system-break-2942.wav', loop=False, autoplay=False, volume =.3)
+collision_audio = Audio('audio\mixkit-short-explosion-1694.wav', loop=False, autoplay=False)
+dead_audio = Audio('audio\mixkit-system-break-2942.wav', loop=False, autoplay=False)
 star_audio = Audio('audio\mixkit-space-coin-win-notification-271.wav', loop=False, autoplay=False)
 shield_down = Audio('audio\mixkit-tech-break-fail-2947.wav', loop=False, autoplay=False)
 shield_collect = Audio('audio\mixkit-achievement-completed-2068.wav', loop=False, autoplay=False)
@@ -259,6 +258,7 @@ def update():
     # steuerung Spieler
     global roll
     global pitch
+    global battery
     global endMenu
     global schildAnz
     global starAnz
@@ -284,6 +284,7 @@ def update():
             q1 = float(row[2])
             q2 = float(row[3])
             q3 = float(row[4])
+            battery = float(row[5])
             try:
                 quater_dict["q0"].append(q0)
                 quater_dict["q1"].append(q1)
@@ -422,12 +423,6 @@ def update():
         if kollisionAs.hit:
             asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(30, 40))
 
-    '''Text'''
-    destroy(points_text)
-    points_text.text = f"Punktzahl: {player.punktzahl}"
-
-    destroy(highscore_text)
-    highscore_text.text = f"Highscore: {player.highscore}"
 
     '''Stern'''
     if (player.punktzahl) >= starAnz * 70 + 70:
@@ -454,6 +449,16 @@ def update():
         shield.visible = True
     if player.schild == 0:
         shield.visible = False
+
+    '''Text'''
+    destroy(points_text)
+    points_text.text = f"Punktzahl: {player.punktzahl}"
+
+    destroy(highscore_text)
+    highscore_text.text = f"Highscore: {player.highscore}"
+
+    destroy(battery_text)
+    battery_text.text = f"Batterie: {battery}%"
 
 
 app.run()
