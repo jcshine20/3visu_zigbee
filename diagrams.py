@@ -136,6 +136,7 @@ from configparser import ConfigParser
 from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton, \
     QGridLayout, QMessageBox, QMainWindow, QVBoxLayout, QDesktopWidget
 import numpy as np
+from PyQt5 import QtGui, QtCore
 import pyqtgraph as pg
 # import pyqtgraph.exporters
 import serial
@@ -213,7 +214,11 @@ class AngelsPlot(QMainWindow):
         self.phi = 0
         self.theta = 0
 
-        self._update()
+        # self._update()
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(50)
+        self.timer.timeout.connect(self._update)
+        self.timer.start()
 
     def centerOnScreen(self):
         resolution = QDesktopWidget().screenGeometry()
