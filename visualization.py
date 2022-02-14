@@ -194,32 +194,33 @@ def main():
     phi = 0
     oldTime = time.time()
 
-
     while True:
-        while (Data.inWaiting() == 0):
-            pass
-        dataPacket = Data.readline()
-        dataPacket = str(dataPacket, 'utf-8')
-        dataPacket = dataPacket.strip('\r\n')
-        splitPacket = dataPacket.split(",")
-        newTime = time.time()
-        deltaTime = newTime - oldTime
-        oldTime = newTime
-        splitPacket.append(str(deltaTime))
-        row = splitPacket
-
-        print(row)
-        if int(splitPacket[0]) == 0:
-            phi, theta = visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj, phi, theta)
-            # deltaTime = newTime - oldTime
-            # oldTime = newTime
-        elif int(splitPacket[0]) == 1:
-            try:
-                visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
-                                    quaternionObj)
-            except:
+        try:
+            while (Data.inWaiting() == 0):
                 pass
+            dataPacket = Data.readline()
+            dataPacket = str(dataPacket, 'utf-8')
+            dataPacket = dataPacket.strip('\r\n')
+            splitPacket = dataPacket.split(",")
+            newTime = time.time()
+            deltaTime = newTime - oldTime
+            oldTime = newTime
+            splitPacket.append(str(deltaTime))
+            row = splitPacket
 
+            print(row)
+            if int(splitPacket[0]) == 0:
+                phi, theta = visualizeEuler(row, frontArrowEuler, upArrowEuler, sideArrowEuler, eulerObj, phi, theta)
+                # deltaTime = newTime - oldTime
+                # oldTime = newTime
+            elif int(splitPacket[0]) == 1:
+                try:
+                    visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
+                                        quaternionObj)
+                except:
+                    pass
+        except:
+            pass
 
 if __name__ == "__main__":
     main()
