@@ -115,7 +115,8 @@ class App(QWidget):
 
     def show_visu(self):
         try:
-            subprocess.call("python visualization.py", shell=True)
+            self.close()
+            main()
         except:
             pass
 

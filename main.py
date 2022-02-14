@@ -10,6 +10,11 @@ from computation import transformQuatEuler
 from computation import *
 from configparser import ConfigParser
 
+"""
+In this class an object is defined,
+which will be represented as an asteroid. 
+"""
+
 
 class Asteroid(Entity):  # Klasse Asteroid
     def __init__(self, position=(0, 0, 0)):
@@ -22,6 +27,12 @@ class Asteroid(Entity):  # Klasse Asteroid
             rotation=(0, 0, 0),
             shader=lit_with_shadows_shader
         )
+
+
+"""
+In this class an object is defined,
+used to represent the explosion. 
+"""
 
 
 # Class for Explosion
@@ -40,13 +51,13 @@ class Explosion(Entity):
         self.change_scale = random.randint(1, 3) / 150  # speed of how scale changes
 
         if player.leben <= 0:
-        # if lebend <= 0:
+            # if lebend <= 0:
             j = random.randint(0, 17)
             if (j % 3) == 0:  # 40% mini-asteroids, 60% red spheres
                 self.color = color.dark_gray
                 self.model = 'Asteroid'
                 self.scale = 0.2
-                self.shader = shader=lit_with_shadows_shader
+                self.shader = shader = lit_with_shadows_shader
             else:
                 self.color = color.red
                 self.model = 'sphere'
@@ -69,6 +80,11 @@ class Explosion(Entity):
             destroy(self)
 
 
+"""
+In this class the end menu is defined.
+"""
+
+
 class EndMenu(Entity):
     def __init__(self):
         super().__init__(
@@ -81,6 +97,11 @@ class EndMenu(Entity):
             # texture_scale=(5, 8),
             color=color.rgb(0, 0, 0, 200)
         )
+
+
+"""
+In this class, the spaceship which the player controls is defined. 
+"""
 
 
 class Player(Entity):
@@ -101,6 +122,8 @@ class Player(Entity):
         self.username = "invalid"
 
 
+# An explosion is generated
+
 def createExplosion(vec, num):
     x = vec.x
     y = vec.y
@@ -109,6 +132,8 @@ def createExplosion(vec, num):
     for count in range(num):
         e[count] = Explosion(x, y, z)
 
+
+# Shild Class
 
 class Schild(Entity):
     def __init__(self, position=(0, 0, 0), scale=(.03, .03, .03), ):
@@ -122,6 +147,8 @@ class Schild(Entity):
         )
 
 
+# Shield Class
+
 class Stern(Entity):
     def __init__(self, position=(0, 0, 0)):
         super().__init__(
@@ -131,6 +158,11 @@ class Stern(Entity):
             scale=(.7, .7, .7),
             color=color.random_color(),
         )
+
+
+"""
+Generates the end menu with the overview of the high score and options to continue 
+"""
 
 
 def createEndMenu(highscore):
@@ -151,6 +183,11 @@ def createEndMenu(highscore):
     return endMenu
 
 
+"""
+Call config ini and read com port. 
+Capture data from the serial import 
+"""
+
 file = 'config.ini'
 config = ConfigParser()
 config.read(file)
@@ -165,18 +202,23 @@ window.borderless = True
 window.exit_button.visible = True
 window.fps_counter.enabled = True
 window.fullscreen = False
-# toolbar = Text("1 = Ende, 2 = Neustart", y=.5, x=-.25)
+
 DirectionalLight(y=2, z=3, shadows=True, rotation=(45, -45, 45))
 
-# Sky(texture='sky')
+# Create Background
 Entity(model='quad', texture="images\space.jpg", scale=(100, 50), double_sided=True, position=(0, 0, 100))
+# call Player Funktion
 player = Player()
 player.collider.visible = False
 
 amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
-amount = config["user"]["difficulty"]
-positions = [15, 0, -10, -200, -60, -100]
+amount = config["user"]["difficulty"]  # Read difficulty from the config.ini file
+positions = [15, 0, -10, -200, -60, -100]  # Initial positions of the asteroids
 positionsH = [4, 5, 6]
+
+"""
+generate additional asteroids based on difficulty 
+"""
 
 for entry in range(amounts[amount]):
     if entry % 2 == 0:
@@ -191,7 +233,9 @@ datadict = dict(beschl_x=[], beschl_y=[], beschl_z=[],
                 mag_x=[], mag_y=[], mag_z=[], time=[])
 quater_dict = dict(q0=[], q1=[], q2=[], q3=[], time=[])
 
-
+"""
+various variables and arrays 
+"""
 
 asteroids = []
 herzen = []
@@ -207,8 +251,12 @@ roll = 0
 pitch = 0
 yaw = 0
 battery = 0
-toRad = 2 * np.pi / 360
-toDeg = 1 / toRad
+toRad = 2 * np.pi / 360  #Umrechnung für Eulerwinkel
+toDeg = 1 / toRad        #Umrechnung für Eulerwinkel
+
+"""
+create asteroids 
+"""
 for i in positions:
     asteroid = Asteroid(position=(random.randint(-6, 6), random.randint(-5, 5), i))
     asteroids.append(asteroid)
@@ -221,7 +269,7 @@ points_text = Text(text=f"Punktzahl: {player.punktzahl}", y=.5, x=.6, scale=1.5,
 highscore_text = Text(text=f"Highscore: {player.highscore}", y=.47, x=.6, scale=1.5, eternal=True, ignore=False, i=0,
                       font=gamefont)
 battery_text = Text(text=f"Batterie: {battery}%", parent=camera.ui, scale=1.5, position=window.top_left, eternal=True,
-                    ignore=False, font = gamefont)
+                    ignore=False, font=gamefont)
 endMenu = None
 
 '''Audio'''
@@ -246,7 +294,9 @@ speeds = dict(easy=10, medium=15, hard=20, very_hard=25)
 speed = speeds[f'{config["user"]["difficulty"]}']
 
 
-# 1 und 2
+"""
+handle Input 
+"""
 def input(key):
     if held_keys['1']:
         quit()
@@ -265,8 +315,10 @@ def input(key):
         starAnz = 0
         schildAnz = 0
         speedAnz = 0
-
-
+"""
+Update function is called per game frame, ideally 60 times per second
+ 
+"""
 def update():
     if player.punktzahl == 0:
         player.amount = config["user"]["difficulty"]
@@ -309,7 +361,7 @@ def update():
             q1 = float(row[2])
             q2 = float(row[3])
             q3 = float(row[4])
-            battery = int(float(row[5])/1.55)
+            battery = int(float(row[5]) / 1.55)
 
             try:
                 quater_dict["q0"].append(q0)
@@ -349,7 +401,7 @@ def update():
     except:
         pass
 
-    '''Rotation und Bewegung des Schiffs'''
+    '''Rotation and movement of ship with sensor '''
     player.rotation_x = 0
     player.rotation_z = 0
 
@@ -433,13 +485,9 @@ def update():
             print(player.schild)
             # schild.visible = False
 
-   # if isinstance(kollisionSp.entity, Schild):
+    # if isinstance(kollisionSp.entity, Schild):
 
-
-
-    #if isinstance(kollisionSp.entity, Stern):
-
-
+    # if isinstance(kollisionSp.entity, Stern):
 
     '''Leben wird weniger'''
     if player.leben == 2:
@@ -455,7 +503,6 @@ def update():
         if kollisionAs.hit:
             asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(40, 50))
 
-
     '''Stern'''
     if player.punktzahl >= starAnz * 30 + 30:
         star = Stern(position=(random.randint(-6, 6), random.randint(-5, 5), 50))
@@ -466,7 +513,7 @@ def update():
         star.rotation_y += 3
         kollisionSt = star.intersects()
         if isinstance(kollisionSt.entity, Player):
-            star.setPos(-10,-10,-10)
+            star.setPos(-10, -10, -10)
             star_audio.play()
             star.disable()
             player.punktzahl += 20

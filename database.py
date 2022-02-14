@@ -104,10 +104,6 @@ def insert_highscore(name, highscore, dt=datetime.datetime.now().replace(microse
     conn = sqlite3.connect('data.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO userscores VALUES (?, ?, ?)", (name, highscore, dt))
-    cursor.execute("SELECT * FROM userscores")
-    entries = cursor.fetchall()
-    for entry in entries:
-        print(entry)
     conn.commit()
     conn.close()
 

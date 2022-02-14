@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d3763108-47b0-4d24-9743-bf44395c0b1d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_02_2022_17_36__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_02_2022_17_36__Changes_.xml" afterDir="false" />
+    <list default="true" id="659f685d-60c6-4721-9089-c9659662cad8" name="Changes" comment="Finale Version">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/visualization.py" beforeDir="false" afterPath="$PROJECT_DIR$/visualization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/config.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data.db" beforeDir="false" afterPath="$PROJECT_DIR$/data.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +51,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="D:/Studium/gamefiles/models_compressed/main.py" />
   </component>
-  <component name="RunManager" selected="Python.diagrams">
+  <component name="RunManager" selected="Python.GUI">
     <configuration name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="3visu_zigbee" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -156,9 +159,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.diagrams" />
         <item itemvalue="Python.GUI" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.diagrams" />
         <item itemvalue="Python.visualization" />
         <item itemvalue="Python.main22" />
       </list>
@@ -304,6 +307,18 @@
     <MESSAGE value="add ptqy diagrams" />
     <MESSAGE value="added timer to diagrams" />
     <MESSAGE value="processEVents" />
-    <option name="LAST_COMMIT_MESSAGE" value="processEVents" />
+    <MESSAGE value="Finale Version" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finale Version" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/GUI.py</url>
+          <line>124</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
