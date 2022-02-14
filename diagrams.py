@@ -207,11 +207,11 @@ class AngelsPlot(QMainWindow):
         self.phi = 0
         self.theta = 0
 
-        # self._update()
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(50)
-        self.timer.timeout.connect(self._update)
-        self.timer.start()
+        # # self._update()
+        # self.timer = QtCore.QTimer()
+        # self.timer.setInterval(50)
+        # self.timer.timeout.connect(self._update)
+        # self.timer.start()
 
         self.pitch_curve_euler = self.eulerPlot.plot(pen='r', name="Pitch")
         self.roll_curve_euler = self.eulerPlot.plot(pen='g', name="Roll")
@@ -267,7 +267,7 @@ class AngelsPlot(QMainWindow):
                 self.roll_curve_euler.setData(self.time_euler, self.roll_values_euler)
                 self.yaw_curve_euler.setData(self.time_euler, self.yaw_values_euler)
 
-
+                app.processEvents()
             except:
                 print("??????????")
                 pass
@@ -321,5 +321,9 @@ if __name__ == '__main__':
     Data = serial.Serial(com, 38400)
     app = QApplication(sys.argv)
     plot = AngelsPlot()
+
+    while True:
+        plot._update()
+
     plot.show()
     sys.exit(app.exec_())

@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d3763108-47b0-4d24-9743-bf44395c0b1d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diagrams.py" beforeDir="false" afterPath="$PROJECT_DIR$/diagrams.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -256,7 +255,14 @@
       <option name="project" value="LOCAL" />
       <updated>1644847858638</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="processEVents">
+      <created>1644848884384</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1644848884384</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -295,6 +301,7 @@
     <MESSAGE value="make volumes quieter" />
     <MESSAGE value="add ptqy diagrams" />
     <MESSAGE value="added timer to diagrams" />
-    <option name="LAST_COMMIT_MESSAGE" value="added timer to diagrams" />
+    <MESSAGE value="processEVents" />
+    <option name="LAST_COMMIT_MESSAGE" value="processEVents" />
   </component>
 </project>
