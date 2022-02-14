@@ -11,21 +11,20 @@ from datetime import datetime
 toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
 
-#com = "com5"
-#Data = serial.Serial(com, 115200)  # arduino anpassen!!!!
 
 
-def createCanvas():
-    return canvas(range=5, forward=vector(-1, -1, -1), width=600, height=600)
 
-
-def createEulerGraph():
-    gd = graph(title="3D Visualization", xtitle="<b>Time in s</b>", ytitle="Angels in Degrees",
-               foreground=color.black, background=color.white, fast=False, scroll=True, xmin=0, xmax=5)
-    pitchCurve = gdots(color=color.red, label="pitch")
-    rollCurve = gdots(color=color.green, label="roll")
-    yawCurve = gdots(color=color.blue, label="yaw")
-    return gd, pitchCurve, rollCurve, yawCurve
+# def createCanvas():
+#     return canvas(range=5, forward=vector(-1, -1, -1), width=600, height=600)
+#
+#
+# def createEulerGraph():
+#     gd = graph(title="3D Visualization", xtitle="<b>Time in s</b>", ytitle="Angels in Degrees",
+#                foreground=color.black, background=color.white, fast=False, scroll=True, xmin=0, xmax=5)
+#     pitchCurve = gdots(color=color.red, label="pitch")
+#     rollCurve = gdots(color=color.green, label="roll")
+#     yawCurve = gdots(color=color.blue, label="yaw")
+#     return gd, pitchCurve, rollCurve, yawCurve
 
 
 def axisVis():
@@ -97,17 +96,7 @@ def visualizeQuaternion(row, frontArrowQuat, upArrowQuat, sideArrowQuat,
     q2 = float(row[3])
     q3 = float(row[4])
 
-    # Transformation quaternions into euler angels
-    # roll = -math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (q1 * q1 + q2 * q2))
-    # pitch = math.asin(2 * (q0 * q2 - q3 * q1))
-    # yaw = -math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (q2 * q2 + q3 * q3))  # - np.pi/2
     roll, pitch, yaw = transformQuatEuler(q0, q1, q2, q3)
-
-    # Update Graph
-    # curves[0].plot((q0, row[5]))
-    # curves[1].plot((q1, row[5]))
-    # curves[2].plot((q2, row[5]))
-    # curves[3].plot((q3, row[5]))
 
     frontVector, upVectorRotated, sideVectorRotated = computeAxis(pitch, roll, yaw)
 
@@ -185,9 +174,7 @@ def computeAxis(pitch, roll, yaw):
 
 
 def main():
-    # '''Build up Graph for Euler Angels'''
-    # gd, pitchCurve, rollCurve, yawCurve = createEulerGraph()
-    # gd.align = "right"
+
     file = 'config.ini'
     config = ConfigParser()
     config.read(file)
@@ -213,14 +200,7 @@ def main():
     theta = 0
     phi = 0
     oldTime = time.time()
-    # deltaTime = 0
 
-    # list = readDataFromTXT()
-    # for i in range(len(list)):
-    #     dataPacket = str(list[i])
-    #     dataPacket = dataPacket.strip('\n')
-    #     list[i] = dataPacket
-    #     # print(list[i])
 
     while True:
         while (Data.inWaiting() == 0):

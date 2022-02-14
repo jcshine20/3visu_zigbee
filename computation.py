@@ -8,18 +8,27 @@ toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
 
 
-def readDataFromTXT():
-    with open('bewegung.txt', 'r') as csv_file:
-        csv_reader = csv.reader(csv_file)
-
-        next(csv_reader)
-        next(csv_reader)
-
-        array = list(csv_file)
-        return array
+# def readDataFromTXT():
+#     with open('bewegung.txt', 'r') as csv_file:
+#         csv_reader = csv.reader(csv_file)
+#
+#         next(csv_reader)
+#         next(csv_reader)
+#
+#         array = list(csv_file)
+#         return array
 
 
 def computePitchAngle(accx, accz, gyroy, thetaOld, dt):
+    """
+    This function computes the Pitch Angle
+    :param accx: value of accel. in x-direction
+    :param accz: value of accel. in z-direction
+    :param gyroy: rotational velocity of y-axis
+    :param thetaOld: pitch angle of last measurement
+    :param dt: temporal distance btw. two measurements
+    :return: pitch angle in degrees
+    """
     accx = float(accx)
     accz = float(accz)
     gyroy = float(gyroy)
@@ -29,6 +38,15 @@ def computePitchAngle(accx, accz, gyroy, thetaOld, dt):
 
 
 def computeRollAngle(accy, accz, gyrox, phiOld, dt):
+    """
+    This function computes the Roll Angle
+    :param accy: value of accel. in y-direction
+    :param accz: value of accel. in z-direction
+    :param gyrox: rotational velocity of x-axis
+    :param phiOld: roll angle of last measurement
+    :param dt: temporal distance btw. two measurements
+    :return: roll angle in degrees
+    """
     accy = float(accy)
     accz = float(accz)
     gyrox = float(gyrox)
@@ -38,6 +56,15 @@ def computeRollAngle(accy, accz, gyrox, phiOld, dt):
 
 
 def computeYawAngle(theta, phi, magx, magy, magz):
+    """
+    This function computes the yaw angle
+    :param theta: computed pitch angle
+    :param phi: computed roll angle
+    :param magx: value of magnetometer in x-direction
+    :param magy: value of magnetometer in y-direction
+    :param magz: value of magnetometer in z-direction
+    :return: yaw angle in degrees
+    """
     magx = float(magx)
     magy = float(magy)
     magz = float(magz)
@@ -53,6 +80,14 @@ def computeYawAngle(theta, phi, magx, magy, magz):
 
 
 def transformQuatEuler(q0, q1, q2, q3):
+    """
+    This functions converts quaternions into euler angles
+    :param q0: first value of quaternion
+    :param q1: second value of quaternion
+    :param q2: third value of quaternion
+    :param q3: fourth value of quaternion
+    :return: euler angels in radians
+    """
     roll = -math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (q1 * q1 + q2 * q2))
     pitch = math.asin(2 * (q0 * q2 - q3 * q1))
     yaw = -math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (q2 * q2 + q3 * q3))  # - np.pi/2
@@ -60,29 +95,3 @@ def transformQuatEuler(q0, q1, q2, q3):
     return roll, pitch, yaw
 
 
-# Main
-def main():
-    array = readDataFromTXT()
-    theta = 0;
-    phi = 0;
-    for row in array:
-        row = str(row)
-        row = row.strip('\n')
-        row = row.split(",")
-
-        # row[0] = accx, row[1] = accy, row[2] = accz
-        # row[3] = gyrox, row[4] = gyroy, row[5] = gyroz
-        # row[6] = magx, row[7] = magy, row[8] = magz
-
-        pitch = computePitchAngle(accx=row[0], accz=row[2], gyroy=row[4], thetaOld=theta, dt=0.001)
-        theta = pitch
-
-        roll = computeRollAngle(accy=row[1], accz=row[2], gyrox=row[3], phiOld=phi, dt=0.001)
-        phi = roll
-
-        yaw = computeYawAngle(theta=pitch, phi=roll, magx=row[6], magy=row[7], magz=row[8])
-        print(pitch, roll, yaw)
-
-
-if __name__ == "__main__":
-    main()
