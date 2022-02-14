@@ -5,6 +5,7 @@ from configparser import ConfigParser
 from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton, \
     QGridLayout, QMessageBox, QMainWindow, QVBoxLayout, QDesktopWidget
 import numpy as np
+from PyQt5 import QtGui, QtCore
 import pyqtgraph as pg
 # import pyqtgraph.exporters
 import serial
@@ -60,13 +61,6 @@ class AngelsPlot(QMainWindow):
         self.yaw_values_quat = np.array([], dtype=float)
         self.time_quat = np.array([], dtype=float)
 
-        self.pitch_curve_euler = self.eulerPlot.plot(pen='r', name="Pitch")
-        self.roll_curve_euler = self.eulerPlot.plot(pen='g', name="Roll")
-        self.yaw_curve_euler = self.eulerPlot.plot(pen='y', name="Yaw")
-
-        self.pitch_curve_quat = self.quatPlot.plot(pen='r', name="Pitch")
-        self.roll_curve_quat = self.quatPlot.plot(pen='g', name="Roll")
-        self.yaw_curve_quat = self.quatPlot.plot(pen='y', name="Yaw")
 
         # Variables for Time Stamp
         self.oldTimeEuler = time.time()
@@ -76,13 +70,25 @@ class AngelsPlot(QMainWindow):
         self.plotTimeQuat = 0
 
         self.counterEuler = 0
-        self.counterQUat = 0
+        self.counterQuat = 0
 
         # Initialization of pitch and roll
         self.phi = 0
         self.theta = 0
 
-        self._update()
+        # # self._update()
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(5)
+        self.timer.timeout.connect(self._update)
+        self.timer.start()
+
+        self.pitch_curve_euler = self.eulerPlot.plot(pen='r', name="Pitch")
+        self.roll_curve_euler = self.eulerPlot.plot(pen='g', name="Roll")
+        self.yaw_curve_euler = self.eulerPlot.plot(pen='y', name="Yaw")
+
+        self.pitch_curve_quat = self.quatPlot.plot(pen='r', name="Pitch")
+        self.roll_curve_quat = self.quatPlot.plot(pen='g', name="Roll")
+        self.yaw_curve_quat = self.quatPlot.plot(pen='y', name="Yaw")
 
     def centerOnScreen(self):
         resolution = QDesktopWidget().screenGeometry()
@@ -99,19 +105,18 @@ class AngelsPlot(QMainWindow):
         splitPacket = dataPacket.split(",")
         print(splitPacket)
 
-        try:
-            if int(splitPacket[0]) == 0:
-                self.counterEuler += 1
-                newTimeEuler = time.time()
-                deltaTimeEuler = newTimeEuler - self.oldTimeEuler
-                self.oldTimeEuler = newTimeEuler
-                splitPacket.append(str(deltaTimeEuler))
-                self.plotTimeEuler += deltaTimeEuler
-                row = splitPacket
+        if int(splitPacket[0]) == 0:
+            self.counterEuler += 1
+            newTimeEuler = time.time()
+            deltaTimeEuler = newTimeEuler - self.oldTimeEuler
+            self.oldTimeEuler = newTimeEuler
+            splitPacket.append(str(deltaTimeEuler))
+            self.plotTimeEuler += deltaTimeEuler
+            row = splitPacket
 
-
-                roll = computeRollAngle(accy=row[2], accz=row[3], gyrox=row[4], phiOld=self.phi, dt=float(row[11]))
-                pitch = computePitchAngle(accx=row[1], accz=row[3], gyroy=row[5], thetaOld=self.theta,
+            try:
+                roll = -computeRollAngle(accy=row[2], accz=row[3], gyrox=row[4], phiOld=self.phi, dt=float(row[11]))
+                pitch = -computePitchAngle(accx=row[1], accz=row[3], gyroy=row[5], thetaOld=self.theta,
                                           dt=float(row[11]))
                 yaw = computeYawAngle(theta=pitch, phi=roll, magx=row[7], magy=row[8], magz=row[9])
                 self.phi = roll
@@ -120,8 +125,8 @@ class AngelsPlot(QMainWindow):
                 self.pitch_values_euler = np.append(self.pitch_values_euler, pitch)
                 self.roll_values_euler = np.append(self.roll_values_euler, roll)
                 self.yaw_values_euler = np.append(self.yaw_values_euler, yaw)
-                self.time_euler.append = np.append(self.time_euler, self.plotTimeEuler)
-                if self.counterEuler > 20:
+                self.time_euler = np.append(self.time_euler, self.plotTimeEuler)
+                if self.counterEuler > 40:
                     self.pitch_values_euler = np.append(self.pitch_values_euler[1:20], pitch)
                     self.roll_values_euler = np.append(self.roll_values_euler[1:20], roll)
                     self.yaw_values_euler = np.append(self.yaw_values_euler[1:20], yaw)
@@ -131,22 +136,21 @@ class AngelsPlot(QMainWindow):
                 self.roll_curve_euler.setData(self.time_euler, self.roll_values_euler)
                 self.yaw_curve_euler.setData(self.time_euler, self.yaw_values_euler)
 
+                app.processEvents()
+            except:
+                print("??????????")
+                pass
 
-        except:
-            print("??????????")
-            pass
+        if int(splitPacket[0]) == 1:
+            self.counterQuat += 1
+            newTimeQuat = time.time()
+            deltaTimeQuat = newTimeQuat - self.oldTimeQuat
+            self.oldTimeQuat = newTimeQuat
+            splitPacket.append(str(deltaTimeQuat))
+            self.plotTimeQuat += deltaTimeQuat
+            row = splitPacket
 
-        try:
-            if int(splitPacket[0]) == 1:
-                self.counterQuat += 1
-                newTimeQuat = time.time()
-                deltaTimeQuat = newTimeQuat - self.oldTimeQuat
-                self.oldTimeQuat = newTimeQuat
-                splitPacket.append(str(deltaTimeQuat))
-                self.plotTimeQuat += deltaTimeQuat
-                row = splitPacket
-                print(row)
-
+            try:
                 q0 = float(row[1])
                 q1 = float(row[2])
                 q2 = float(row[3])
@@ -160,20 +164,23 @@ class AngelsPlot(QMainWindow):
                 self.pitch_values_quat = np.append(self.pitch_values_quat, pitch)
                 self.roll_values_quat = np.append(self.roll_values_quat, roll)
                 self.yaw_values_quat = np.append(self.yaw_values_quat, yaw)
-                self.time_values_quat = np.append(self.time_values_quat, self.plotTimeQuat)
-                if self.counterQuat > 20:
+                self.time_quat = np.append(self.time_quat, self.plotTimeQuat)
+                #print(self.pitch_values_quat)
+                if self.counterQuat > 40:
                     self.pitch_values_quat = np.append(self.pitch_values_quat[1:20], pitch)
                     self.roll_values_quat = np.append(self.roll_values_quat[1:20], roll)
                     self.yaw_values_quat = np.append(self.yaw_values_quat[1:20], yaw)
-                    self.time_quat = np.append(self.time_values_quat[1:20], self.plotTimeQuat)
+                    self.time_quat = np.append(self.time_quat[1:20], self.plotTimeQuat)
+                #print(self.pitch_values_quat)
 
                 self.pitch_curve_quat.setData(self.time_quat, self.pitch_values_quat)
                 self.roll_curve_quat.setData(self.time_quat, self.roll_values_quat)
                 self.yaw_curve_quat.setData(self.time_quat, self.yaw_values_quat)
-        except:
-            pass
 
-
+                app.processEvents()
+            except:
+                print('!!!!!!!!!!!!!!!!!!')
+                pass
 
 
 if __name__ == '__main__':
@@ -181,8 +188,12 @@ if __name__ == '__main__':
     config = ConfigParser()
     config.read(file)
     com = config["comport"]["port"]
-    Data = serial.Serial(com, 38400)
+    Data = serial.Serial(com, 115200)
     app = QApplication(sys.argv)
     plot = AngelsPlot()
+
+
+
     plot.show()
+
     sys.exit(app.exec_())
