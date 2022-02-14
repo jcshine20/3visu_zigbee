@@ -249,7 +249,14 @@
       <option name="project" value="LOCAL" />
       <updated>1644804186251</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="added timer to diagrams">
+      <created>1644847858638</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1644847858638</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -287,6 +294,7 @@
     <MESSAGE value="fix quaternion" />
     <MESSAGE value="make volumes quieter" />
     <MESSAGE value="add ptqy diagrams" />
-    <option name="LAST_COMMIT_MESSAGE" value="add ptqy diagrams" />
+    <MESSAGE value="added timer to diagrams" />
+    <option name="LAST_COMMIT_MESSAGE" value="added timer to diagrams" />
   </component>
 </project>

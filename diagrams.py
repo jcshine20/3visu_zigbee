@@ -192,13 +192,6 @@ class AngelsPlot(QMainWindow):
         self.yaw_values_quat = np.array([], dtype=float)
         self.time_quat = np.array([], dtype=float)
 
-        self.pitch_curve_euler = self.eulerPlot.plot(pen='r', name="Pitch")
-        self.roll_curve_euler = self.eulerPlot.plot(pen='g', name="Roll")
-        self.yaw_curve_euler = self.eulerPlot.plot(pen='y', name="Yaw")
-
-        self.pitch_curve_quat = self.quatPlot.plot(pen='r', name="Pitch")
-        self.roll_curve_quat = self.quatPlot.plot(pen='g', name="Roll")
-        self.yaw_curve_quat = self.quatPlot.plot(pen='y', name="Yaw")
 
         # Variables for Time Stamp
         self.oldTimeEuler = time.time()
@@ -208,7 +201,7 @@ class AngelsPlot(QMainWindow):
         self.plotTimeQuat = 0
 
         self.counterEuler = 0
-        self.counterQUat = 0
+        self.counterQuat = 0
 
         # Initialization of pitch and roll
         self.phi = 0
@@ -219,6 +212,14 @@ class AngelsPlot(QMainWindow):
         self.timer.setInterval(50)
         self.timer.timeout.connect(self._update)
         self.timer.start()
+
+        self.pitch_curve_euler = self.eulerPlot.plot(pen='r', name="Pitch")
+        self.roll_curve_euler = self.eulerPlot.plot(pen='g', name="Roll")
+        self.yaw_curve_euler = self.eulerPlot.plot(pen='y', name="Yaw")
+
+        self.pitch_curve_quat = self.quatPlot.plot(pen='r', name="Pitch")
+        self.roll_curve_quat = self.quatPlot.plot(pen='g', name="Roll")
+        self.yaw_curve_quat = self.quatPlot.plot(pen='y', name="Yaw")
 
     def centerOnScreen(self):
         resolution = QDesktopWidget().screenGeometry()
@@ -300,10 +301,13 @@ class AngelsPlot(QMainWindow):
                     self.roll_values_quat = np.append(self.roll_values_quat[1:20], roll)
                     self.yaw_values_quat = np.append(self.yaw_values_quat[1:20], yaw)
                     self.time_quat = np.append(self.time_values_quat[1:20], self.plotTimeQuat)
+                print(self.pitch_values_quat)
 
                 self.pitch_curve_quat.setData(self.time_quat, self.pitch_values_quat)
                 self.roll_curve_quat.setData(self.time_quat, self.roll_values_quat)
                 self.yaw_curve_quat.setData(self.time_quat, self.yaw_values_quat)
+
+                app.processEvents()
             except:
                 print('!!!!!!!!!!!!!!!!!!')
                 pass
