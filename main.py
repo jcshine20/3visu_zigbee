@@ -174,8 +174,17 @@ player = Player()
 player.collider.visible = False
 
 amounts = dict(easy=1, medium=2, hard=4, very_hard=6)
+amount = config["user"]["difficulty"]
 positions = [15, 0, -10, -200, -60, -100]
 positionsH = [4, 5, 6]
+
+for entry in range(amounts[amount]):
+    if entry % 2 == 0:
+        pos = random.randint(-200, -100)
+    else:
+        pos = random.randint(100, 200)
+    if pos not in positions:
+        positions.append(pos)
 
 datadict = dict(beschl_x=[], beschl_y=[], beschl_z=[],
                 gyro_x=[], gyro_y=[], gyro_z=[],
@@ -200,9 +209,8 @@ yaw = 0
 battery = 0
 toRad = 2 * np.pi / 360
 toDeg = 1 / toRad
-
-for i in range(len(positions)):
-    asteroid = Asteroid(position=(random.randint(-6, 6), random.randint(-5, 5), positions[i]))
+for i in positions:
+    asteroid = Asteroid(position=(random.randint(-6, 6), random.randint(-5, 5), i))
     asteroids.append(asteroid)
     asteroid.collider.visible = False
 
@@ -294,7 +302,6 @@ def update():
         dataPacket = dataPacket.strip('\r\n')
         splitPacket = dataPacket.split(",")
         row = splitPacket
-       # print(splitPacket)
 
         if int(splitPacket[0]) == 1:
             # quaterionen
@@ -302,7 +309,8 @@ def update():
             q1 = float(row[2])
             q2 = float(row[3])
             q3 = float(row[4])
-            battery = float(row[5])
+            battery = int(float(row[5])/1.55)
+
             try:
                 quater_dict["q0"].append(q0)
                 quater_dict["q1"].append(q1)
@@ -381,7 +389,7 @@ def update():
 
     '''Animation Asteroid'''
     for asteroid in asteroids:
-        if player.punktzahl >= speedAnz * 150 + 150 and speed < 40:
+        if player.punktzahl >= speedAnz * 150 + 150 and speed < 50:
             speed = speed + 5
             print(speed)
             speedAnz += 1
@@ -389,7 +397,7 @@ def update():
         asteroid.rotation_x -= random.randint(3, 6)
         asteroid.rotation_y -= random.randint(2, 8)
         if asteroid.z <= -2:
-            asteroid.setPos(x=random.randint(-6, 6), y=random.randint(-5, 5), z=random.randint(30, 40))
+            asteroid.setPos(x=random.randint(-6, 6), y=random.randint(-5, 5), z=random.randint(40, 50))
             if player.leben > 0:
                 player.punktzahl += 1
             else:
@@ -445,7 +453,7 @@ def update():
     for asteroid in asteroids:
         kollisionAs = asteroid.intersects()
         if kollisionAs.hit:
-            asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(30, 40))
+            asteroid.setPos(random.randint(-6, 6), random.randint(-6, 6), random.randint(40, 50))
 
 
     '''Stern'''

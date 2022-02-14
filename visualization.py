@@ -14,17 +14,10 @@ toDeg = 1 / toRad
 
 
 
-# def createCanvas():
-#     return canvas(range=5, forward=vector(-1, -1, -1), width=600, height=600)
-#
-#
-# def createEulerGraph():
-#     gd = graph(title="3D Visualization", xtitle="<b>Time in s</b>", ytitle="Angels in Degrees",
-#                foreground=color.black, background=color.white, fast=False, scroll=True, xmin=0, xmax=5)
-#     pitchCurve = gdots(color=color.red, label="pitch")
-#     rollCurve = gdots(color=color.green, label="roll")
-#     yawCurve = gdots(color=color.blue, label="yaw")
-#     return gd, pitchCurve, rollCurve, yawCurve
+def createCanvas():
+    return canvas(range=5, forward=vector(-1, -1, -1), width=600, height=600)
+
+
 
 
 def axisVis():
@@ -204,7 +197,6 @@ def main():
 
     while True:
         while (Data.inWaiting() == 0):
-            sleep(0.001)
             pass
         dataPacket = Data.readline()
         dataPacket = str(dataPacket, 'utf-8')

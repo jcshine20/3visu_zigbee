@@ -2,6 +2,7 @@ import sys
 from configparser import ConfigParser
 import database
 import subprocess
+import diagrams
 from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton, \
     QGridLayout, QMessageBox
 from PyQt5 import QtGui, QtCore, QtSvg
@@ -15,31 +16,23 @@ class App(QWidget):
     This Window serves as a game menu, from which the
     game itself can be started, as well as the
     visualization of the sensor.
-
     :input:
         Username: The name which gets written
         to the database along with the achieved score.
-
         Difficulty: The user can choose up to four
         different difficulties for the game.
-
     :buttons:
         Options: New usernames can be entered, and the
         comport is set here, for more information, see
         docstring in Options class.
-
         Show Highscore: The highscore of the username
         chosen in the combobox above will be displayed
         in the button, when clicked.
-
         Show visu: the visualization of the sensor
         opens up in the browser.
-
         Save config: values from the inputs (including options)
         will be saved into config.ini
-
         Start Game: The game will start
-
     """
 
     def __init__(self):
@@ -56,6 +49,7 @@ class App(QWidget):
         # Initialization of buttons and comboboxes
         self.combousername = QComboBox()
         self.combousername.addItems([name[0] for name in database.get_usernames()])
+        self.combousername.setCurrentText(self.config["user"]["name"])
         self.combodifficulty = QComboBox()
         self.combodifficulty.addItems(["easy", "medium", "hard", "very_hard"])
         self.combodifficulty.setCurrentText(self.config["user"]["difficulty"])
@@ -71,33 +65,38 @@ class App(QWidget):
         self.option_button = QPushButton()
         self.option_button.pressed.connect(self.show_options)
         self.option_button.setIcon(QIcon("icons\\options.png"))
+        self.dia_button = QPushButton("Show Diagram")
+        self.dia_button.pressed.connect(self.show_diagram)
 
         # Initialization and design of labels
         myFont = QtGui.QFont()
         myFont.setBold(True)
         self.label_options = QLabel("Options")
-        self.label_options.setStyleSheet("background-color: red")
         self.label_options.setFont(myFont)
+        self.label_options.setFixedWidth(70)
         self.label_difficulty = QLabel("Difficulty")
-        self.label_difficulty.setStyleSheet("background-color: red")
         self.label_difficulty.setFont(myFont)
+        self.label_difficulty.setFixedWidth(70)
         self.label_options.setFont(myFont)
         self.label_username = QLabel("Username")
-        self.label_username.setStyleSheet("background-color: red")
         self.label_username.setFont(myFont)
+        self.label_username.setFixedWidth(70)
         self.label_highscore = QLabel("Highscore")
-        self.label_highscore.setStyleSheet("background-color: red")
         self.label_highscore.setFont(myFont)
+        self.label_highscore.setFixedWidth(70)
         self.label_visu = QLabel("Visualization")
-        self.label_visu.setStyleSheet("background-color: red")
         self.label_visu.setFont(myFont)
-
+        self.label_visu.setFixedWidth(70)
+        self.label_diagram = QLabel("Diagram")
+        self.label_diagram.setFont(myFont)
+        self.label_diagram.setFixedWidth(70)
         # Adding above initialized Widgets (labels, buttons, comboboxes..) to layout
         self.layout.addRow(self.label_options, self.option_button)
         self.layout.addRow(self.label_username, self.combousername)
         self.layout.addRow(self.label_difficulty, self.combodifficulty)
         self.layout.addRow(self.label_highscore, self.score_button)
         self.layout.addRow(self.label_visu, self.visu_button)
+        self.layout.addRow(self.label_diagram, self.dia_button)
         self.layout.addRow(self.save_button)
         self.layout.addRow(self.start_button)
         self.show()
@@ -116,7 +115,13 @@ class App(QWidget):
 
     def show_visu(self):
         try:
-            main()
+            subprocess.call("python visualization.py", shell=True)
+        except:
+            pass
+
+    def show_diagram(self):
+        try:
+            subprocess.call("python diagrams.py", shell=True)
         except:
             pass
 
@@ -147,18 +152,13 @@ class Options(QWidget):
     When the Window opens, the User can pass in the
     parameters, which will be sent to the Main window
     with a pyqtSignal.
-
     :input:
     name: user can set name
-
     Comport: user can set comport
-
-
     :buttons:
     Save name:
     text from input field name above will be saved into the database
     Save comport and close:
-
     text from input field comport will be saved into config.ini
     """
     submitted = QtCore.pyqtSignal(str)
@@ -195,16 +195,11 @@ class Options(QWidget):
     def save_name(self):
         """
         Saves name to the database
-
         :var name
-
         Grabs the input from the username textfield, it serves no purpose other than storing that value
         temporarily, so it doesn't have the be Grabbed three times from the QLineEdit
-
-
         The user is not allowed to enter an empty string as a name, if he does it anyways,
         a Messagebox will show up, to remind the user of our name conventions
-
         """
         name = str(self.edit_username.text())
         if name != "":
@@ -213,6 +208,7 @@ class Options(QWidget):
             msg = QMessageBox()
             msg.setText(f"Username {name} is part of the database")
             msg.setWindowTitle("Name saved")
+            #msg.setIcon(QMessageBox.QIcon("icons\\options.png"))
             msg.exec()
         else:
             msg = QMessageBox()

@@ -2,6 +2,7 @@ import sys
 import time
 from configparser import ConfigParser
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QApplication, QLineEdit, QLabel, QFormLayout, QComboBox, QPushButton, \
     QGridLayout, QMessageBox, QMainWindow, QVBoxLayout, QDesktopWidget
 import numpy as np
@@ -19,7 +20,8 @@ class AngelsPlot(QMainWindow):
         # Set up GUI configuration
         self.setGeometry(0, 0, 1200, 500)
         self.centerOnScreen()
-
+        self.setWindowTitle('Diagrams')
+        self.setWindowIcon(QIcon("icons\\spaceship.png"))
         self.mainbox = QWidget()
         self.setCentralWidget(self.mainbox)
         self.mainbox.setLayout(QVBoxLayout())
@@ -188,7 +190,7 @@ if __name__ == '__main__':
     config = ConfigParser()
     config.read(file)
     com = config["comport"]["port"]
-    Data = serial.Serial(com, 115200)
+    Data = serial.Serial(com, 38400)
     app = QApplication(sys.argv)
     plot = AngelsPlot()
 
