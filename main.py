@@ -283,6 +283,7 @@ def update():
 
     max = 15
 
+    '''Einlesen der Daten vom seriellen Port'''
     try:
 
         while (Data.inWaiting() == 0):
@@ -340,6 +341,7 @@ def update():
     except:
         pass
 
+    '''Rotation und Bewegung des Schiffs'''
     player.rotation_x = 0
     player.rotation_z = 0
 
@@ -377,6 +379,7 @@ def update():
     while player.x <= -6:
         player.x += 1
 
+    '''Animation Asteroid'''
     for asteroid in asteroids:
         if player.punktzahl >= speedAnz * 150 + 150 and speed < 40:
             speed = speed + 5
@@ -392,8 +395,7 @@ def update():
             else:
                 player.punktzahl = player.punktzahl
 
-    # kollision Spieler
-
+    '''Kollision Spieler'''
     kollisionSp = player.intersects()
     if isinstance(kollisionSp.entity, Asteroid):
         if (player.leben > 0) & (player.schild < 1):
